@@ -1,11 +1,10 @@
 package com.project.Ecommerce.Model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name ="order_detail")
+@Table(name = "order_detail")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,7 +14,7 @@ import lombok.*;
 public class OderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "order_id")

@@ -1,13 +1,12 @@
 package com.project.Ecommerce.Model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
-@Table(name ="order")
+@Table(name = "order")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -17,34 +16,34 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private  User user;
+    private User user;
 
     @Column(name = "fullname")
-    private  String fullName;
+    private String fullName;
 
     @Column(name = "email")
-    private  String email;
+    private String email;
 
     @Column(name = "phonenumber")
-    private  String phoneNumber;
+    private String phoneNumber;
 
     @Column(name = "address")
-    private  String address;
+    private String address;
 
     @Column(name = "note")
-    private  String note;
+    private String note;
 
-    @Column(name="order_date")
+    @Column(name = "order_date")
     private LocalDate orderDate;
 
     @Column(name = "status")
     private String status;
 
-    @Column(name="total_money")
+    @Column(name = "total_money")
     private Double totalMoney;
 
     @Column(name = "shipping_method")
@@ -65,4 +64,3 @@ public class Order {
     private boolean active;
 
 }
-

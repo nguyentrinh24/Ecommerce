@@ -1,22 +1,28 @@
-package com.project.Ecommerce.DTOs;
+package com.project.Ecommerce.Respones;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
-import lombok.*;
+import jakarta.persistence.MappedSuperclass;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-@Data
+
 @AllArgsConstructor
 @NoArgsConstructor
+@MappedSuperclass
+@SuperBuilder
 @Getter
 @Setter
-public class OrderDTOs {
+
+
+public class OrderResponse extends BaseResponses {
 
     @JsonProperty("user_id")
-
-    private long user_id;
+    private int user_id;
 
     @JsonProperty("full_name")
     private String fullName;
@@ -28,15 +34,12 @@ public class OrderDTOs {
     private String address;
 
 
-    @Size(min=5,message = "phon")
-    @JsonProperty("phone number must at be later 5 characters")
     private String phoneNumber;
 
 
     private String note;
     private String status;
 
-    @Size(min=0,message = "total money must be >=0")
     @JsonProperty("total_money")
     private Double totalMoney;
 
@@ -51,5 +54,4 @@ public class OrderDTOs {
 
     @JsonProperty("payment_method")
     private String paymentMethod;
-
 }

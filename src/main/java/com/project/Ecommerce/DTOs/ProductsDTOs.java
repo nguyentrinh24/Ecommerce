@@ -1,21 +1,20 @@
 package com.project.Ecommerce.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.Ecommerce.Model.Product;
+import com.project.Ecommerce.Respones.ProductResponses;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+
 public class ProductsDTOs {
 
     @NotEmpty(message = "name cannot empty")
@@ -27,9 +26,8 @@ public class ProductsDTOs {
     private String description;
 
     @JsonProperty("category_id")
-    private String categoryID;
+    private Long categoryID;
 
-    private List<MultipartFile> file;
 
 
 }

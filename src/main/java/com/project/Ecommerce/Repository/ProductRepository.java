@@ -1,6 +1,7 @@
 package com.project.Ecommerce.Repository;
 
 import com.project.Ecommerce.Model.Product;
+import com.project.Ecommerce.Model.ProductImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

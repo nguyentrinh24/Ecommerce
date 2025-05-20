@@ -13,10 +13,10 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 public class ProductImage {
-
+    public static final int Maximum_image=6;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
