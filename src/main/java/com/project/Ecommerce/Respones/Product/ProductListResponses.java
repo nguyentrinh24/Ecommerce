@@ -1,4 +1,4 @@
-package com.project.Ecommerce.Respones;
+package com.project.Ecommerce.Respones.Product;
 
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;

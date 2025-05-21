@@ -1,7 +1,9 @@
 package com.project.Ecommerce.Model;
 
+import com.project.Ecommerce.Service.OrderDetailService;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "order_detail")
@@ -9,9 +11,9 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 
-public class OderDetail {
+public class OrderDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +27,7 @@ public class OderDetail {
     private Product product;
 
     @Column(name = "price")
-    private Float price;
+    private Double price;
 
     @Column(name = "number_of_product")
     private int numberOfProduct;
@@ -35,5 +37,6 @@ public class OderDetail {
 
     @Column(name = "color")
     private String color;
+
 
 }

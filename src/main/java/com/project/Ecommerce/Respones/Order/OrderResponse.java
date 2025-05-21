@@ -1,6 +1,8 @@
-package com.project.Ecommerce.Respones;
+package com.project.Ecommerce.Respones.Order;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.Ecommerce.Respones.BaseResponses;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,12 +38,15 @@ public class OrderResponse extends BaseResponses {
 
     private String phoneNumber;
 
+    @JsonProperty("order_date")
+    @JsonFormat(pattern = "yyyy-M-d")
+    private LocalDateTime  orderDate;
 
     private String note;
     private String status;
 
     @JsonProperty("total_money")
-    private Double totalMoney;
+    private Float totalMoney;
 
     @JsonProperty("shipping_address")
     private String shippingAddress;
@@ -50,8 +55,11 @@ public class OrderResponse extends BaseResponses {
     private String shippingMethod;
 
     @JsonProperty("shipping_date")
-    private LocalDateTime shippingDate;
+    @JsonFormat(pattern = "yyyy-M-d")
+    private LocalDateTime  shippingDate;
 
     @JsonProperty("payment_method")
     private String paymentMethod;
+
+
 }

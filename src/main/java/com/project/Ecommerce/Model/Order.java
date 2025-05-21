@@ -4,9 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
-@Table(name = "order")
+@Table(name = "`order`")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -38,7 +40,7 @@ public class Order {
     private String note;
 
     @Column(name = "order_date")
-    private LocalDate orderDate;
+    private LocalDateTime orderDate;
 
     @Column(name = "status")
     private String status;
@@ -52,7 +54,7 @@ public class Order {
     private String shippingAddress;
 
     @Column(name = "shipping_date")
-    private LocalDate shippingDate;
+    private LocalDateTime  shippingDate;
 
     @Column(name = "tracking_number")
     private String trackingNumber;

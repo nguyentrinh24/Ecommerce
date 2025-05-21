@@ -31,10 +31,10 @@ public class UserController {
                 List<String> messages = bindingResult.getFieldErrors().stream().map((err)->err.getDefaultMessage()).collect(Collectors.toList());
                 return ResponseEntity.badRequest().body(messages);
             }
-//            if(!user.getPassword().equals(user.getRetypePassword()))
-//            {
-//                return ResponseEntity.badRequest().body("Passwords do not match");
-//            }
+            if(!user.getPassword().equals(user.getRetypePassword()))
+            {
+                return ResponseEntity.badRequest().body("Passwords do not match");
+            }
             userService.createUser(user);
             return ResponseEntity.ok().body("done register");
         }

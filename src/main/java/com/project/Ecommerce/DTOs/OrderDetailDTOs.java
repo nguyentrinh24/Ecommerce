@@ -4,12 +4,14 @@ package com.project.Ecommerce.DTOs;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
 
 public class OrderDetailDTOs {
 
@@ -31,7 +33,7 @@ public class OrderDetailDTOs {
 
     @JsonProperty("total_money")
     @Min(value = 1,message = "total money must be > 0")
-    private  int total_money;
+    private  Double total_money;
 
     @JsonProperty("color")
     private String color;

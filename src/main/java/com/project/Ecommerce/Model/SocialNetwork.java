@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name="social_network")
+@Table(name = "social_network")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,7 +14,7 @@ import lombok.*;
 public class SocialNetwork {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
     private String provider;
     private String provider_id;
     private String email;

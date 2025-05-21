@@ -9,7 +9,7 @@ import com.project.Ecommerce.Model.ProductImage;
 import com.project.Ecommerce.Repository.CategoriRepository;
 import com.project.Ecommerce.Repository.ProductImageRepository;
 import com.project.Ecommerce.Repository.ProductRepository;
-import com.project.Ecommerce.Respones.ProductResponses;
+import com.project.Ecommerce.Respones.Product.ProductResponses;
 import com.project.Ecommerce.Service.Iml.ProductServiceIml;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

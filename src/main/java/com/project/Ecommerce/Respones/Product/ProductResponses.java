@@ -1,9 +1,10 @@
-package com.project.Ecommerce.Respones;
+package com.project.Ecommerce.Respones.Product;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.Ecommerce.DTOs.ProductsDTOs;
 import com.project.Ecommerce.Model.Category;
 import com.project.Ecommerce.Model.Product;
+import com.project.Ecommerce.Respones.BaseResponses;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -20,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 public class ProductResponses extends BaseResponses {
 
     private String name;
-    private Float price;
+    private Double price;
     private String thumbnail;
     private String description;
 

@@ -1,13 +1,12 @@
 package com.project.Ecommerce.Controller;
 
-import com.github.javafaker.Faker;
 import com.project.Ecommerce.DTOs.ProductsDTOs;
 import com.project.Ecommerce.Model.Product;
 import com.project.Ecommerce.Model.ProductImage;
 import com.project.Ecommerce.Repository.ProductImageRepository;
 import com.project.Ecommerce.Repository.ProductRepository;
-import com.project.Ecommerce.Respones.ProductListResponses;
-import com.project.Ecommerce.Respones.ProductResponses;
+import com.project.Ecommerce.Respones.Product.ProductListResponses;
+import com.project.Ecommerce.Respones.Product.ProductResponses;
 import com.project.Ecommerce.Service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

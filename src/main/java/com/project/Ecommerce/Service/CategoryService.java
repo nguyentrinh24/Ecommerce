@@ -5,54 +5,60 @@ import com.project.Ecommerce.Model.Category;
 import com.project.Ecommerce.Repository.CategoriRepository;
 import com.project.Ecommerce.Service.Iml.CategoryServiceIml;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-
 @Service
-//Dependency Injection
 @RequiredArgsConstructor
-
 public class CategoryService implements CategoryServiceIml {
-    private final CategoriRepository categoriRepository;
-
-
+    private final CategoriRepository categoryRepository;
 
     @Override
     public Category findById(Long id) {
-        return categoriRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Category not found"));
-     }
-
-    @Override
-    public Category createCategory(CategoryDTOs categoryDTO) {
-       Category newcategory = Category.builder()
-                                   .name(categoryDTO.getName())
-                                   .build();
-       return categoriRepository.save(newcategory);
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
     }
 
     @Override
-    public Category updateCategory(Long id, CategoryDTOs categoryDTO) {
-        Category exitsCategory = categoriRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Category not found"));
-        exitsCategory.setName(categoryDTO.getName());
-        categoriRepository.save(exitsCategory);
-        return exitsCategory;
+    @Transactional
+    public Category createCategory(@Valid CategoryDTOs categoryDTO) {
+        if (!StringUtils.hasText(categoryDTO.getName())) {
+            throw new IllegalArgumentException("Category name cannot be empty");
+        }
+        Category newCategory = Category.builder()
+                .name(categoryDTO.getName())
+                .build();
+        return categoryRepository.save(newCategory);
     }
 
     @Override
+    @Transactional
+    public Category updateCategory(Long id, @Valid CategoryDTOs categoryDTO) {
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
+        if (!StringUtils.hasText(categoryDTO.getName())) {
+            throw new IllegalArgumentException("Category name cannot be empty");
+        }
+        existingCategory.setName(categoryDTO.getName());
+        return categoryRepository.save(existingCategory);
+    }
+
+    @Override
+    @Transactional
     public Category deleteCategory(Long id) {
-        Category exitsCategory = categoriRepository.findById(id).orElseThrow(()->new  EntityNotFoundException("Category not found"));
-
-        // xóa cứng
-        categoriRepository.deleteById(id);
-
-        return  exitsCategory;
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
+        categoryRepository.deleteById(id);
+        return existingCategory;
     }
 
     @Override
     public List<Category> findAllCategories() {
-        return categoriRepository.findAll();
+        return categoryRepository.findAll();
     }
 }

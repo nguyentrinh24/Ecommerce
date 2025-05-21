@@ -1,8 +1,6 @@
 package com.project.Ecommerce.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.project.Ecommerce.Model.Product;
-import com.project.Ecommerce.Respones.ProductResponses;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
@@ -21,7 +19,7 @@ public class ProductsDTOs {
     private String name;
 
     @Min(value = 0,message = "price > 0")
-    private Float price;
+    private Double price;
     private String thumbnail;
     private String description;
 

@@ -1,12 +1,10 @@
 package com.project.Ecommerce.Model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
-@Table(name ="categories")
+@Table(name = "categories")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -16,9 +14,8 @@ import lombok.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-
-    @Column(name = "name",nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 }

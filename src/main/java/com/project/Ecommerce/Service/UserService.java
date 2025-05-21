@@ -1,13 +1,19 @@
 package com.project.Ecommerce.Service;
 
+import com.project.Ecommerce.Component.JWTUtil;
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
 import com.project.Ecommerce.Model.User;
+import com.project.Ecommerce.Repository.RoleRepository;
 import com.project.Ecommerce.Repository.UserRepository;
 import com.project.Ecommerce.Service.Iml.UserServiceIml;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -18,7 +24,13 @@ import java.util.OptionalInt;
 //DI
 @RequiredArgsConstructor
 public class UserService implements UserServiceIml {
+
+
     private final UserRepository  userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JWTUtil  jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public User findById(Long id) {
@@ -47,10 +59,13 @@ public class UserService implements UserServiceIml {
                 .is_active(true)
                 .build();
 
-        //check user login used Oauth
+        //check user login used Oauth co account_id ? yeu cau pass
         if(user.getFacebookAccountId()==0 || user.getGoogleAccountId()==0)
         {
             String password = user.getPassword();
+            String encodedPassword = passwordEncoder.encode(password);
+            //update pass after bcrypt
+            newuser.setPassword(encodedPassword);
         }
 
         newuser = userRepository.save(newuser);
@@ -75,8 +90,36 @@ public class UserService implements UserServiceIml {
 
     @Override
     public String login(String phoneNumber, String password) {
-        return "";
+      Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+      if(user.isEmpty())
+      {
+          try {
+              throw new DataNotFoundException("user password invalid");
+          } catch (DataNotFoundException e) {
+              throw new RuntimeException(e);
+          }
+      }
+      //return optional user.get
+      User exitsUser = user.get();
+      //check pass
+        if(exitsUser.getGg_account_id()==0 || exitsUser.getFb_account_id()==0)
+        {
+            if(!passwordEncoder.matches(password,exitsUser.getPassword()))
+            {
+                throw new BadCredentialsException("Wrong password");
+            }
+        }
+      //take out username/pass
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(phoneNumber, password);
+
+      //authentication with security ->username/pass
+        authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+
+      return jwtUtil.generateToken(exitsUser);// jwt
+
     }
+
+
 
     @Override
     public boolean existsByEmail(String email) {

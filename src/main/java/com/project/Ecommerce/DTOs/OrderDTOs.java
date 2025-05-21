@@ -1,17 +1,23 @@
 package com.project.Ecommerce.DTOs;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@SuperBuilder
+
 public class OrderDTOs {
 
     @JsonProperty("user_id")
@@ -28,15 +34,17 @@ public class OrderDTOs {
     private String address;
 
 
-    @Size(min=5,message = "phon")
+    @Size(min=5,message = "phone")
     @JsonProperty("phone number must at be later 5 characters")
     private String phoneNumber;
 
+    @JsonProperty("order_date")
+    @JsonFormat(pattern = "yyyy-M-d")
+    private LocalDateTime  orderDate;
 
     private String note;
     private String status;
 
-    @Size(min=0,message = "total money must be >=0")
     @JsonProperty("total_money")
     private Double totalMoney;
 
@@ -47,7 +55,8 @@ public class OrderDTOs {
     private String shippingMethod;
 
     @JsonProperty("shipping_date")
-    private LocalDateTime shippingDate;
+    @JsonFormat(pattern = "yyyy-M-d")
+    private LocalDateTime  shippingDate;
 
     @JsonProperty("payment_method")
     private String paymentMethod;

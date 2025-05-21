@@ -29,3 +29,9 @@ api:
 logging:
   level:
     root: INFO
+
+jwt:
+  #30days = 30*24*60*60
+  expiration: 2592000
+  secretKey: yM6F9LdPOMN7eB8AqYTrpH5rcuC4NlUHoRUlwIRNbV8=
+
