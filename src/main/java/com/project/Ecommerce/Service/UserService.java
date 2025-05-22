@@ -1,8 +1,9 @@
 package com.project.Ecommerce.Service;
 
-import com.project.Ecommerce.Component.JWTUtil;
+import com.project.Ecommerce.Component.JwtUtil;
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
+import com.project.Ecommerce.Model.Role;
 import com.project.Ecommerce.Model.User;
 import com.project.Ecommerce.Repository.RoleRepository;
 import com.project.Ecommerce.Repository.UserRepository;
@@ -17,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.OptionalInt;
 
 
 @Service
@@ -29,7 +29,7 @@ public class UserService implements UserServiceIml {
     private final UserRepository  userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JWTUtil  jwtUtil;
+    private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
 
     @Override
@@ -42,6 +42,9 @@ public class UserService implements UserServiceIml {
     public User createUser(UserDTOs user) throws DataNotFoundException {
         // check phone number
         String phoneNumber = user.getPhoneNumber();
+
+        Role role = roleRepository.findById(user.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role Not Found"));
 
         if(userRepository.findByPhoneNumber(phoneNumber).isPresent() )
         {
@@ -59,6 +62,7 @@ public class UserService implements UserServiceIml {
                 .is_active(true)
                 .build();
 
+        newuser.setRoleId(role);
         //check user login used Oauth co account_id ? yeu cau pass
         if(user.getFacebookAccountId()==0 || user.getGoogleAccountId()==0)
         {

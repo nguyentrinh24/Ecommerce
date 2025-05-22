@@ -26,6 +26,9 @@ public class Token {
     @Column(name = "token")
     private String token;
 
+    @Column(name = "refresh_token",columnDefinition = "MEDIUMTEXT")
+    private String refreshToken;
+
     @Column(name = "token_type")
     private String tokenType;
 

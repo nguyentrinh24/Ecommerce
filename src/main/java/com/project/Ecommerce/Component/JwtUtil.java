@@ -1,16 +1,15 @@
 package com.project.Ecommerce.Component;
 
 
+import com.project.Ecommerce.Model.Token;
 import com.project.Ecommerce.Model.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.project.Ecommerce.Repository.TokenRepository;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +19,11 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 
-public class JWTUtil {
+public class JwtUtil {
+
+    private final TokenRepository tokenRepository;
+
+
     @Value("${jwt.expiration}")
     private Long expiration; // time live-> save local
 
@@ -43,9 +46,8 @@ public class JWTUtil {
             return token;
         }
         catch (Exception e){
-            //can logger "inject"
-
-            System.out.println( "Can not create jwt"+e.getMessage() );
+            System.out.println("JWT Generation Error: " + e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -63,7 +65,7 @@ public class JWTUtil {
         return Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
     }
 
@@ -74,11 +76,46 @@ public class JWTUtil {
         return claimsResolver.apply(claims);
     }
 
-    // check expiration
+    // check expiration date
     public boolean checkExpiration(String token)
     {
         Date expirationDate = this.exctractClaims(token).getExpiration();
         return expirationDate.before(new Date());
+    }
+
+    //extract phonenumber
+    public String extractPhoneNumber(String token) {
+        return getClaim(token, Claims::getSubject);
+    }
+
+
+    // validate token
+
+    public boolean validateToken(String token, User userDetails) {
+        try {
+            String phoneNumber = extractPhoneNumber(token);
+            Token existingToken = tokenRepository.findByToken(token);
+            if (existingToken == null ||
+                    existingToken.isRevoked() ||
+                    !userDetails.is_active()
+            ) {
+                return false;
+            }
+            return (phoneNumber.equals(userDetails.getUsername()))
+                    && !checkExpiration(token);
+        } catch (MalformedJwtException e) {
+            throw new JwtException("Invalid JWT token: {}"+ e.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("JWT token is expired: {}" +e.getMessage());
+
+        } catch (UnsupportedJwtException e) {
+            throw new JwtException("IJWT token is unsupported: {}" +e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            throw new JwtException("JWT claims string is empty: {}"+e.getMessage());
+
+        }
+
     }
 
 }
