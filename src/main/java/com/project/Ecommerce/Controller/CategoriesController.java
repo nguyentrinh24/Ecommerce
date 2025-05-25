@@ -2,7 +2,9 @@ package com.project.Ecommerce.Controller;
 
 import com.project.Ecommerce.DTOs.CategoryDTOs;
 import com.project.Ecommerce.Model.Category;
+import com.project.Ecommerce.Respones.Category.UpdateCategoryResponses;
 import com.project.Ecommerce.Service.CategoryService;
+import com.project.Ecommerce.Component.LocalizationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,52 +14,86 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.project.Ecommerce.Util.MessagesKey.*;
+
 @RestController
 @RequestMapping("${api.prefix}/categories")
 @RequiredArgsConstructor
 public class CategoriesController {
 
-    // DI
-    private final CategoryService  categoryService;
+    private final CategoryService categoryService;
+    private final LocalizationUtil localizationUtil;
 
-
-
-//Create Category
+    // CREATE CATEGORY
     @PostMapping()
     public ResponseEntity<?> createCategory(
             @Valid @RequestBody CategoryDTOs categoryDTO,
             BindingResult bindingResult
     ) {
-        if  (bindingResult.hasErrors()) {
-            List<String> messages = bindingResult.getFieldErrors()
+        if (bindingResult.hasErrors()) {
+            String messages = bindingResult.getFieldErrors()
                     .stream()
-                    .map(err -> err.getDefaultMessage()).collect(Collectors.toList());
+                    .map(err -> err.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
             return ResponseEntity.badRequest().body(messages);
         }
 
-        categoryService.createCategory(categoryDTO);
-        return ResponseEntity.ok().body("this is create category successfully" + categoryDTO.toString()) ;
+        try {
+            categoryService.createCategory(categoryDTO);
+            return ResponseEntity.ok().body(
+                    localizationUtil.getMessage(INSERT_CATEGORY_SUCCESSFULLY)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    localizationUtil.getMessage(INSERT_CATEGORY_FAILED, e.getMessage())
+            );
+        }
     }
+
+    //  GET ALL CATEGORIES
     @GetMapping("")
-    public ResponseEntity<?> getAllCategories( //http://localhost:8088/api/v1/categories?page=1&limit=10
+    public ResponseEntity<?> getAllCategories(
             @RequestParam("page") int page,
             @RequestParam("limit") int limit
     ) {
         List<Category> categoryList = categoryService.findAllCategories();
-        return ResponseEntity.ok().body(categoryList.stream()) ;
+        return ResponseEntity.ok(categoryList);
     }
 
-
-
+    //  UPDATE CATEGORY
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody CategoryDTOs categoryDTO) {
-        categoryService.updateCategory(id, categoryDTO);
-        return  ResponseEntity.ok().body("this is update category" + id);
+    public ResponseEntity<UpdateCategoryResponses> updateCategory(
+            @PathVariable Long id,
+            @Valid @RequestBody CategoryDTOs categoryDTO
+    ) {
+        try {
+            categoryService.updateCategory(id, categoryDTO);
+            return ResponseEntity.ok(
+                    UpdateCategoryResponses.builder()
+                            .message(localizationUtil.getMessage(UPDATE_CATEGORY_SUCCESSFULLY))
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    UpdateCategoryResponses.builder()
+                            .message("Cập nhật thất bại: " + e.getMessage())
+                            .build()
+            );
+        }
     }
 
+    //  DELETE CATEGORY
     @DeleteMapping("/{id}")
-    public  ResponseEntity<?> deleteCategory(@PathVariable Long id) {
-        categoryService.deleteCategory(id);
-        return ResponseEntity.ok().body("this is delete category" + id +"successfully");
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.ok(
+                    localizationUtil.getMessage(DELETE_CATEGORY_SUCCESSFULLY, id)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    "Xóa thất bại: " + e.getMessage()
+            );
+        }
     }
 }

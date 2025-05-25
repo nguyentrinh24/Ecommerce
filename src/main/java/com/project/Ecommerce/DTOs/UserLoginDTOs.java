@@ -15,6 +15,7 @@ public class UserLoginDTOs {
     private String phoneNumber;
 
     @NotBlank(message = "Password cannot be blank")
+    @JsonProperty("password")
     private String password;
 
 }

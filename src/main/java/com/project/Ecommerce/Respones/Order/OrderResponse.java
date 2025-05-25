@@ -35,7 +35,7 @@ public class OrderResponse extends BaseResponses {
     @JsonProperty("address")
     private String address;
 
-
+    @JsonProperty("phoneNumber")
     private String phoneNumber;
 
     @JsonProperty("order_date")

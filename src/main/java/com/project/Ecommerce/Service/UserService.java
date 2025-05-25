@@ -3,6 +3,7 @@ package com.project.Ecommerce.Service;
 import com.project.Ecommerce.Component.JwtUtil;
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
+import com.project.Ecommerce.Exceptions.PermissionDenyException;
 import com.project.Ecommerce.Model.Role;
 import com.project.Ecommerce.Model.User;
 import com.project.Ecommerce.Repository.RoleRepository;
@@ -39,7 +40,7 @@ public class UserService implements UserServiceIml {
 
     @Override
     //register
-    public User createUser(UserDTOs user) throws DataNotFoundException {
+    public User createUser(UserDTOs user) throws Exception {
         // check phone number
         String phoneNumber = user.getPhoneNumber();
 
@@ -50,6 +51,11 @@ public class UserService implements UserServiceIml {
         {
             throw  new DataNotFoundException("Phone number used");
         }
+        if(role.getName().equals("ADMIN") )
+        {
+            throw  new PermissionDenyException("You can not register account with ADMIN");
+        }
+
         //convert DTOs-> DTO
         User newuser = User.builder()
                 .fullName(user.getFullName())
@@ -114,7 +120,8 @@ public class UserService implements UserServiceIml {
             }
         }
       //take out username/pass
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(phoneNumber, password);
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(phoneNumber, password,exitsUser.getAuthorities());
 
       //authentication with security ->username/pass
         authenticationManager.authenticate(usernamePasswordAuthenticationToken);

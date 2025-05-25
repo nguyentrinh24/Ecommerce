@@ -12,7 +12,7 @@ import java.util.OptionalInt;
 
 public interface UserServiceIml {
     User findById(Long id);
-    User createUser(UserDTOs user) throws DataNotFoundException;
+    User createUser(UserDTOs user) throws Exception;
     User updateUser(Long id, UserDTOs user);
     User deleteUser(Long id);
     Page<User> findAllUsers(String key,Pageable pageable);

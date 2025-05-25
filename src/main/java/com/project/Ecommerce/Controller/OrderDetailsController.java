@@ -1,5 +1,6 @@
 package com.project.Ecommerce.Controller;
 
+import com.project.Ecommerce.Component.LocalizationUtil;
 import com.project.Ecommerce.DTOs.OrderDetailDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
 import com.project.Ecommerce.Model.OrderDetail;
@@ -11,68 +12,77 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.project.Ecommerce.Util.MessagesKey.*;
 
 @RestController
 @RequestMapping("${api.prefix}/order_details")
 @RequiredArgsConstructor
-
 public class OrderDetailsController {
 
     private final OrderDetailService orderDetailService;
+    private final LocalizationUtil localizationUtil;
 
-    //lay danh sach orderdetail theo order
+    // ✅ Lấy danh sách order detail theo orderId
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<?> getOrderDetails(@Valid @PathVariable("orderId") long orderId ) {
+    public ResponseEntity<?> getOrderDetails(@Valid @PathVariable("orderId") long orderId) {
         List<OrderDetail> orderDetails = orderDetailService.findByOrderId(orderId);
-        List<OrderDetailResponses> orderDetailResponses = orderDetails
-                .stream()
+        List<OrderDetailResponses> response = orderDetails.stream()
                 .map(OrderDetailResponses::fromOrderDetail)
-                .toList();
-        return ResponseEntity.ok(orderDetailResponses);
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
-
+    // ✅ Lấy order detail theo ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOderDetailsByID(@Valid @PathVariable("id") long orderId) {
+    public ResponseEntity<?> getOrderDetailById(@Valid @PathVariable("id") long id) {
         try {
-            OrderDetail orderDetail = orderDetailService.getOrderDetail(orderId);
-            return ResponseEntity.ok().body(OrderDetailResponses.fromOrderDetail(orderDetail));
+            OrderDetail orderDetail = orderDetailService.getOrderDetail(id);
+            return ResponseEntity.ok(OrderDetailResponses.fromOrderDetail(orderDetail));
         } catch (DataNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found with id: " + orderId);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(localizationUtil.getMessage(ORDER_DETAIL_NOT_FOUND, id));
         }
     }
 
+    // ✅ Tạo order detail
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDetailDTOs orderDetailDTO){
-
+    public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO) {
         try {
-            OrderDetail newOrderDetail = orderDetailService.createOrderDetail(orderDetailDTO);
-            return ResponseEntity.ok().body(OrderDetailResponses.fromOrderDetail(newOrderDetail));
+            OrderDetail created = orderDetailService.createOrderDetail(orderDetailDTO);
+            return ResponseEntity.ok(OrderDetailResponses.fromOrderDetail(created));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(localizationUtil.getMessage(ORDER_DETAIL_CREATE_FAILED, e.getMessage()));
         }
     }
 
+    // ✅ Cập nhật order detail
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder( @Valid @RequestBody OrderDetailDTOs orderDetailDTO,@PathVariable("id") long id){
+    public ResponseEntity<?> updateOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO,
+                                               @PathVariable("id") long id) {
         try {
-            OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
-            return ResponseEntity.ok().body(orderDetail);
+            OrderDetail updated = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+            return ResponseEntity.ok(OrderDetailResponses.fromOrderDetail(updated));
         } catch (DataNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(localizationUtil.getMessage(ORDER_DETAIL_UPDATE_FAILED, e.getMessage()));
         }
     }
 
+    // ✅ Xóa order detail
     @DeleteMapping("/{id}")
-    public   ResponseEntity<?> deleteOrder(@PathVariable("id") long  id){
-        orderDetailService.deleteById(id);
-        return ResponseEntity.ok()
-                .body("deleted successfully");
-
+    public ResponseEntity<?> deleteOrderDetail(@PathVariable("id") long id) {
+        try {
+            orderDetailService.deleteById(id);
+            return ResponseEntity.ok(
+                    localizationUtil.getMessage(DELETE_ORDER_DETAIL_SUCCESSFULLY, id)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi xóa: " + e.getMessage());
+        }
     }
 }

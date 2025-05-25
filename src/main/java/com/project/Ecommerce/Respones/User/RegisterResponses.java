@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 
-public class RegisterRespones {
+public class RegisterResponses {
     private String message;
 
     @JsonProperty("user")

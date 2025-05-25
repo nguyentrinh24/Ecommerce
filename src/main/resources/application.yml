@@ -34,4 +34,11 @@ jwt:
   #30days = 30*24*60*60
   expiration: 2592000
   secretKey: yM6F9LdPOMN7eB8AqYTrpH5rcuC4NlUHoRUlwIRNbV8=
-
+messages:
+  basename: messages
+  encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
