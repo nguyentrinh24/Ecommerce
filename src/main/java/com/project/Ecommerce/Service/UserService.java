@@ -17,6 +17,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -34,11 +35,13 @@ public class UserService implements UserServiceIml {
     private final AuthenticationManager authenticationManager;
 
     @Override
+    @Transactional
     public User findById(Long id) {
         return null;
     }
 
     @Override
+    @Transactional
     //register
     public User createUser(UserDTOs user) throws Exception {
         // check phone number
@@ -84,21 +87,25 @@ public class UserService implements UserServiceIml {
     }
 
     @Override
+    @Transactional
     public User updateUser(Long id, UserDTOs user) {
         return null;
     }
 
     @Override
+    @Transactional
     public User deleteUser(Long id) {
         return null;
     }
 
     @Override
+    @Transactional
     public Page<User> findAllUsers(String key, Pageable pageable) {
         return null;
     }
 
     @Override
+    @Transactional
     public String login(String phoneNumber, String password) {
       Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
       if(user.isEmpty())
@@ -133,14 +140,31 @@ public class UserService implements UserServiceIml {
 
 
     @Override
+    @Transactional
     public boolean existsByEmail(String email) {
         return false;
     }
 
     @Override
+    @Transactional
     public Optional<User> findByPhoneNumber(String phoneNumber) {
         return Optional.empty();
     }
 
+
+    public User validateUser(String phone, String password) {
+        User user = userRepository.findByPhoneNumber(phone)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new RuntimeException("Sai mật khẩu");
+        }
+
+        return user;
+    }
+
+    public String generateToken(User user) {
+        return jwtUtil.generateToken(user);
+    }
 
 }

@@ -12,7 +12,7 @@ public interface OrderIml {
     OrderResponse createOrder(OrderDTOs order);
     List<OrderResponse> getAllOrders();
     com.project.Ecommerce.Model.Order updateOrder(Long id, OrderDTOs order) throws DataNotFoundException;
-    void deleteOrder(Long id);
+    String deleteOrder(Long id);
     Optional<Order> findByIdUser(Long id);
 
 }

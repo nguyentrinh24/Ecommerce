@@ -16,19 +16,20 @@ public interface ProductServiceIml {
 
     Product getProductById(long id) throws Exception;
 
-    Page<ProductResponses> getAllProducts(PageRequest pageRequest) throws Exception;
+
 
     Product updateProduct(long id, ProductsDTOs productDTO) throws Exception;
 
     void deleteProduct(long id);
 
-    boolean existsByName(String name);
 
-    List<Product> findProductsByIds(List<Long> productIds);
+
+
 
     ProductImage createProductImage(
             Long productId,
             ProductImageDTOs productImageDTO) throws Exception;
 
-    List<ProductImage> findByProductId(Long productId);
+    Page<ProductResponses> getAllProducts(String keyword,
+                                         Long categoryId, PageRequest pageRequest);
 }

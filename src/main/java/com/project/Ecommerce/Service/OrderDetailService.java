@@ -9,6 +9,7 @@ import com.project.Ecommerce.Repository.OrderDetailRepository;
 import com.project.Ecommerce.Repository.OrderRepository;
 import com.project.Ecommerce.Repository.ProductRepository;
 import com.project.Ecommerce.Service.Iml.OrderDetailIml;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ public class OrderDetailService implements OrderDetailIml {
     private final ModelMapper modelmapper;
 
     @Override
+    @Transactional
     public OrderDetail createOrderDetail(OrderDetailDTOs orderDetailDTO) throws Exception {
         //tìm xem orderId có tồn tại ko
         Order order = orderRepository.findById(orderDetailDTO.getOrderId())
@@ -47,12 +49,14 @@ public class OrderDetailService implements OrderDetailIml {
     }
 
     @Override
+    @Transactional
     public OrderDetail getOrderDetail(Long id) throws DataNotFoundException {
         return orderDetailRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find OrderDetail with id: " + id));
     }
 
     @Override
+    @Transactional
     public OrderDetail updateOrderDetail(Long id, OrderDetailDTOs orderDetailDTO) throws DataNotFoundException {
         //tìm xem order detail có tồn tại ko đã
         OrderDetail existingOrderDetail = orderDetailRepository.findById(id)
@@ -76,11 +80,13 @@ public class OrderDetailService implements OrderDetailIml {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         orderDetailRepository.deleteById(id);
     }
 
     @Override
+    @Transactional
     public List<OrderDetail> findByOrderId(Long orderId) {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
         if (orderDetails.isEmpty()) {

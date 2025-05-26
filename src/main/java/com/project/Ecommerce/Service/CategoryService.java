@@ -19,6 +19,7 @@ public class CategoryService implements CategoryServiceIml {
     private final CategoriRepository categoryRepository;
 
     @Override
+    @Transactional
     public Category findById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));

@@ -2,7 +2,9 @@ package com.project.Ecommerce.Controller;
 
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.DTOs.UserLoginDTOs;
+import com.project.Ecommerce.Model.Token;
 import com.project.Ecommerce.Model.User;
+import com.project.Ecommerce.Repository.TokenRepository;
 import com.project.Ecommerce.Respones.User.LoginResponse;
 import com.project.Ecommerce.Respones.User.RegisterResponses;
 import com.project.Ecommerce.Service.UserService;
@@ -11,12 +13,14 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import  com.project.Ecommerce.Service.TokenService;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 import static com.project.Ecommerce.Util.MessagesKey.*;
@@ -28,6 +32,7 @@ public class UserController {
 
     private final UserService userService;
     private final LocalizationUtil localizationUtil;
+    private final TokenRepository tokenRepository;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponses> registerUser(
@@ -95,7 +100,32 @@ public class UserController {
         }
 
         try {
-            String token = userService.login(userLoginDTOs.getPhoneNumber(), userLoginDTOs.getPassword());
+            // Thay đổi hàm login để trả về user
+            User user = userService.validateUser(userLoginDTOs.getPhoneNumber(), userLoginDTOs.getPassword());
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                        LoginResponse.builder()
+                                .message("Sai tài khoản hoặc mật khẩu")
+                                .token(null)
+                                .build()
+                );
+            }
+
+            // Sinh token (accessToken) cho user
+             String token = userService.generateToken(user);
+
+            // Lưu vào bảng tokens, phải set user
+            tokenRepository.save(
+                    Token.builder()
+                            .user(user)         // <<<< Lưu đúng user vào đây
+                            .token(token)
+                            .tokenType("BEARER")
+                            .expirationDate(LocalDateTime.now().plusDays(7))
+                            .revoked(false)
+                            .expired(false)
+                            .build()
+            );
 
             return ResponseEntity.ok(
                     LoginResponse.builder()
@@ -103,6 +133,7 @@ public class UserController {
                             .token(token)
                             .build()
             );
+
 
         } catch (Exception e) {
             String errorMessage;

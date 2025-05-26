@@ -26,7 +26,7 @@ public class OrderDetailsController {
     private final OrderDetailService orderDetailService;
     private final LocalizationUtil localizationUtil;
 
-    // ✅ Lấy danh sách order detail theo orderId
+    //  Lấy danh sách order detail theo orderId
     @GetMapping("/order/{orderId}")
     public ResponseEntity<?> getOrderDetails(@Valid @PathVariable("orderId") long orderId) {
         List<OrderDetail> orderDetails = orderDetailService.findByOrderId(orderId);
@@ -36,7 +36,7 @@ public class OrderDetailsController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Lấy order detail theo ID
+    //  Lấy order detail theo ID
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderDetailById(@Valid @PathVariable("id") long id) {
         try {
@@ -48,7 +48,7 @@ public class OrderDetailsController {
         }
     }
 
-    // ✅ Tạo order detail
+    //  Tạo order detail
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO) {
         try {
@@ -60,7 +60,7 @@ public class OrderDetailsController {
         }
     }
 
-    // ✅ Cập nhật order detail
+    //  Cập nhật order detail
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO,
                                                @PathVariable("id") long id) {
@@ -73,13 +73,13 @@ public class OrderDetailsController {
         }
     }
 
-    // ✅ Xóa order detail
+    //  Xóa order detail
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrderDetail(@PathVariable("id") long id) {
         try {
             orderDetailService.deleteById(id);
             return ResponseEntity.ok(
-                    localizationUtil.getMessage(DELETE_ORDER_DETAIL_SUCCESSFULLY, id)
+                    localizationUtil.getMessage(DELETE_ORDER_SUCCESSFULLY, id)
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi xóa: " + e.getMessage());

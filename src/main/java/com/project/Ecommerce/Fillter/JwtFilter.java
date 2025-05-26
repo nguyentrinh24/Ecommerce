@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.List;
 public class JwtFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -49,7 +51,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 if (phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     //ép kiểu để gọi tới ROLE
-                    User userDetails = (User) userDetailsService.loadUserByUsername(phoneNumber);
+                                      User userDetails = (User) userDetailsService.loadUserByUsername(phoneNumber);
 
                     if (jwtUtil.validateToken(token, userDetails)) {
                         UsernamePasswordAuthenticationToken authenticationToken =
@@ -83,18 +85,28 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Danh sách API bỏ qua xác thực
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
+
                 Pair.of("/api/v1/order", "GET"),
+                Pair.of("api/v1/order_details/order/**", "GET"),
+                Pair.of("api/v1/order_details/**", "GET"),
                 Pair.of("/api/v1/products", "GET"),
+                Pair.of("/api/v1/products/**", "GET"),
                 Pair.of("/api/v1/categories", "GET"),
                 Pair.of("/api/v1/user/register", "POST"),
-                Pair.of("/api/v1/user/login", "POST")
+                Pair.of("/api/v1/user/login", "POST"),
+                Pair.of("/api/v1/role", "GET"),
+                Pair.of("/api/v1/products/images/**", "GET"),
+                Pair.of("/api/v1/products/generateProductFake", "POST")
         );
 
+
+
         for (Pair<String, String> byPassToken : byPassTokens) {
-            if (path.equals(byPassToken.getLeft()) && method.equalsIgnoreCase(byPassToken.getRight())) {
+            if (pathMatcher.match(byPassToken.getLeft(), path) && method.equalsIgnoreCase(byPassToken.getRight())) {
                 return true;
             }
         }
+
 
         return false;
     }

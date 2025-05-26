@@ -12,6 +12,7 @@ import com.project.Ecommerce.Respones.Product.ProductResponses;
 import com.project.Ecommerce.Service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -52,7 +53,7 @@ public class ProductsController {
                         .collect(Collectors.toList());
                 return ResponseEntity.badRequest().body(messages);
             }
-            Product newProduct = productService.createProduct(productsDTOs);
+            productService.createProduct(productsDTOs);
             return ResponseEntity.ok().body(localizationUtil.getMessage(PRODUCT_CREATED_SUCCESS));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(localizationUtil.getMessage(PRODUCT_OPERATION_FAILED, e.getMessage()));
@@ -110,6 +111,37 @@ public class ProductsController {
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFilename;
     }
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
+        try {
+            java.nio.file.Path imagePath = Paths.get("uploads", imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+
+            if (resource.exists()) {
+                String contentType = Files.probeContentType(imagePath);
+                MediaType mediaType = contentType != null ? MediaType.parseMediaType(contentType) : MediaType.APPLICATION_OCTET_STREAM;
+
+                return ResponseEntity.ok()
+                        .contentType(mediaType)
+                        .body(resource);
+            } else {
+                java.nio.file.Path fallbackPath = Paths.get("uploads", "notfound.jpeg");
+                UrlResource fallbackResource = new UrlResource(fallbackPath.toUri());
+
+                if (fallbackResource.exists()) {
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.IMAGE_JPEG)
+                            .body(fallbackResource);
+                } else {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body("Image not found and fallback image is also missing.");
+                }
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error reading image: " + e.getMessage());
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
@@ -146,11 +178,17 @@ public class ProductsController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ProductListResponses> getAllProducts(@RequestParam("limit") int limit,
-                                                               @RequestParam("page") int page) {
+    public ResponseEntity<ProductListResponses> getAllProduct(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0", name = "categoryId") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) {
         try {
-            PageRequest pageRequest = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
-            Page<ProductResponses> responsesPage = productService.getAllProducts(pageRequest);
+            int actualPage = Math.max(page - 1, 0); // ✅ Ngăn page âm
+            PageRequest pageRequest = PageRequest.of(actualPage, limit, Sort.by("id").ascending());
+
+            Page<ProductResponses> responsesPage = productService.getAllProducts(keyword, categoryId, pageRequest);
+
             return ResponseEntity.ok(ProductListResponses.builder()
                     .productResponses(responsesPage.getContent())
                     .total(responsesPage.getTotalPages())
@@ -160,29 +198,46 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/generateProductFake")
-    public ResponseEntity<?> generateProductFake() {
-        Faker faker = new Faker();
-        int max = 1000;
-        for (int i = 0; i < max; i++) {
-            String productName = faker.commerce().productName();
-            if (productService.existsByName(productName)) continue;
 
-            ProductsDTOs productsDTOsfake = ProductsDTOs.builder()
-                    .name(productName)
-                    .price((double) faker.number().numberBetween(10, 90_000_000))
-                    .description(faker.lorem().sentence())
-                    .thumbnail("")
-                    .categoryID((long) faker.number().numberBetween(2, 5))
-                    .build();
 
-            try {
-                productService.createProduct(productsDTOsfake);
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
-            }
-        }
-        return ResponseEntity.ok(localizationUtil.getMessage(PRODUCT_FAKE_GENERATE_SUCCESS));
-    }
+//    @PostMapping("/generateProductFake")
+//    public ResponseEntity<?> generateProductFake() {
+//        Faker faker = new Faker();
+//        int max = 100;
+//
+//        for (int i = 0; i < max; i++) {
+//            String productName = faker.commerce().productName();
+//            if (productService.existsByName(productName)) continue;
+//
+//            ProductsDTOs fakeProductDTO = ProductsDTOs.builder()
+//                    .name(productName)
+//                    .price((double) faker.number().numberBetween(10, 90_000_000))
+//                    .description(faker.lorem().sentence())
+//                    .thumbnail("https://picsum.photos/300/300?random=" + faker.random().nextInt(1000))
+//                    .categoryID((long) faker.number().numberBetween(2, 5))
+//                    .build();
+//
+//            try {
+//                // Tạo product
+//                Product savedProduct = productService.createProduct(fakeProductDTO);
+//
+//                // Tạo 5 ảnh giả
+//                for (int j = 0; j < 5; j++) {
+//                    ProductImage image = ProductImage.builder()
+//                            .productId(savedProduct)
+//                            .imageUrl("https://picsum.photos/300/300?random=" + faker.random().nextInt(1000))
+//                            .build();
+//
+//                    productImageRepository.save(image); // Inject ProductImageRepository
+//                }
+//
+//            } catch (Exception e) {
+//                return ResponseEntity.badRequest().body("Error creating fake product: " + e.getMessage());
+//            }
+//        }
+//
+//        return ResponseEntity.ok(localizationUtil.getMessage(PRODUCT_FAKE_GENERATE_SUCCESS));
+//    }
+
 }
 

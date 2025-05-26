@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DateTimeException;
 import java.util.List;
@@ -29,6 +30,7 @@ public class ProductService implements ProductServiceIml {
     private final ProductImageRepository productImageRepository;
 
     @Override
+    @Transactional
     public Product createProduct(ProductsDTOs productDTO) throws Exception {
         //check id
         Category exitsCategory = categoriRepository.findById(productDTO
@@ -42,6 +44,7 @@ public class ProductService implements ProductServiceIml {
     }
 
     @Override
+    @Transactional
     public Product getProductById(long id) throws Exception {
 
 
@@ -49,13 +52,15 @@ public class ProductService implements ProductServiceIml {
     }
 
     @Override
-    public Page<ProductResponses> getAllProducts(PageRequest pageRequest) throws Exception {
-        return productRepository.findAll(pageRequest).map(ProductResponses::toProductResponse);
-
-
+    @Transactional
+    public Page<ProductResponses> getAllProducts(String keyword, Long categoryId, PageRequest pageRequest) {
+        Page<Product> products = productRepository.searchProducts(categoryId, keyword, pageRequest);
+        return products.map(ProductResponses::toProductResponse);
     }
 
+
     @Override
+    @Transactional
     public Product updateProduct(long id, ProductsDTOs productDTO) throws Exception {
         // check id product
         Product existingProduct = productRepository.findById(id)
@@ -90,6 +95,7 @@ public class ProductService implements ProductServiceIml {
 
 
     @Override
+    @Transactional
     public void deleteProduct(long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new DateTimeException("Product not found with id: " + id));
@@ -97,17 +103,9 @@ public class ProductService implements ProductServiceIml {
         productRepository.delete(product);
     }
 
-    @Override
-    public boolean existsByName(String name) {
-        return false;
-    }
 
     @Override
-    public List<Product> findProductsByIds(List<Long> productIds) {
-        return List.of();
-    }
-
-    @Override
+    @Transactional
     public ProductImage createProductImage(Long productId, ProductImageDTOs productImageDTO) throws Exception {
         // check id product
         Product exitsProduct = productRepository.findById(productId).orElseThrow(() -> new Exception("Product not found with id: " + productId));
@@ -128,8 +126,7 @@ public class ProductService implements ProductServiceIml {
         return productImageRepository.save(productImage);
     }
 
-    @Override
-    public List<ProductImage> findByProductId(Long productId) {
-        return List.of();
-    }
+
+
+
 }

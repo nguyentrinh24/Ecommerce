@@ -25,7 +25,7 @@ public class CategoriesController {
     private final LocalizationUtil localizationUtil;
 
     // CREATE CATEGORY
-    @PostMapping()
+    @PostMapping("")
     public ResponseEntity<?> createCategory(
             @Valid @RequestBody CategoryDTOs categoryDTO,
             BindingResult bindingResult

@@ -8,6 +8,7 @@ import com.project.Ecommerce.Repository.*;
 import com.project.Ecommerce.Respones.Order.OrderResponse;
 import com.project.Ecommerce.Service.Iml.OrderIml;
 import com.project.Ecommerce.Model.Order;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class OrderService implements OrderIml {
     private final ModelMapper modelmapper;
 
     @Override
+    @Transactional
     public OrderResponse createOrder(OrderDTOs orderDTOs) {
         //check user_id
         try {
@@ -60,12 +62,14 @@ public class OrderService implements OrderIml {
     }
 
     @Override
+    @Transactional
     public List<OrderResponse> getAllOrders() {
 
         return List.of();
     }
 
     @Override
+    @Transactional
     public Order updateOrder(Long id, OrderDTOs orderDTO) throws DataNotFoundException {
         Order order = orderRepository.findById(id).orElseThrow(() ->
                 new DataNotFoundException("Cannot find order with id: " + id));
@@ -82,11 +86,24 @@ public class OrderService implements OrderIml {
     }
 
     @Override
-    public void deleteOrder(Long id) {
-         orderRepository.deleteById(id);
+    @Transactional
+    public String  deleteOrder(Long id) {
+        try {
+            Order order = orderRepository.findById(id)
+                    .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+
+            orderRepository.delete(order);
+            return "Xóa đơn hàng thành công!";
+        } catch (DataNotFoundException e) {
+            return "Lỗi: " + e.getMessage();
+        } catch (Exception e) {
+            // Thường sẽ bắt lỗi ràng buộc FK ở đây
+            return "Xóa thất bại: Đơn hàng đang được tham chiếu bởi dữ liệu khác.";
+        }
     }
 
     @Override
+    @Transactional
     public Optional<Order> findByIdUser(Long id) {
         return orderRepository.findById(id);
     }
