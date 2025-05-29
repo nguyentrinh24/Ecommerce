@@ -184,7 +184,7 @@ public class ProductsController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit) {
         try {
-            int actualPage = Math.max(page - 1, 0); // ✅ Ngăn page âm
+            int actualPage = Math.max(page - 1, 0); // Ngăn page âm
             PageRequest pageRequest = PageRequest.of(actualPage, limit, Sort.by("id").ascending());
 
             Page<ProductResponses> responsesPage = productService.getAllProducts(keyword, categoryId, pageRequest);
@@ -199,6 +199,39 @@ public class ProductsController {
     }
 
 
+    //http://localhost:8088/api/v1/products/6
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable("id") Long productId) {
+        try {
+            Product existingProduct = productService.getProductById(productId);
+            if (existingProduct == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Product not found");
+            }
+
+            return ResponseEntity.ok(ProductResponses.toProductResponse(existingProduct));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/by-ids")
+    public ResponseEntity<?> getProductsByIds(@RequestParam("ids") String ids) {
+        if (ids == null || ids.isBlank()) {
+            return ResponseEntity.badRequest().body("Danh sách IDs không hợp lệ");
+        }
+
+        try {
+            List<Long> productIds = Arrays.stream(ids.split(","))
+                    .filter(s -> !s.isBlank()) // chống empty
+                    .map(Long::parseLong)
+                    .collect(Collectors.toList());
+
+            List<Product> products = productService.findProductsByIds(productIds);
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Không thể parse danh sách id: " + e.getMessage());
+        }
+    }
 
 //    @PostMapping("/generateProductFake")
 //    public ResponseEntity<?> generateProductFake() {

@@ -23,7 +23,7 @@ public interface ProductServiceIml {
     void deleteProduct(long id);
 
 
-
+    List<Product> findProductsByIds(List<Long> productIds);
 
 
     ProductImage createProductImage(

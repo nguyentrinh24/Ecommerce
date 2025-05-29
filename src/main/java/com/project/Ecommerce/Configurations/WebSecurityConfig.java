@@ -35,6 +35,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/order/**").permitAll()
                         .requestMatchers("/api/v1/products/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/api/v1/products/generateProductFake").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/register").permitAll()
@@ -70,7 +71,7 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4300"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200","http://localhost:60692"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

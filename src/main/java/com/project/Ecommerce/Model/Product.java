@@ -1,7 +1,11 @@
 package com.project.Ecommerce.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -27,7 +31,14 @@ public class Product extends BaseEntity {
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name = "categories_id")
     private Category categoryId;
+
+    // Thêm danh sách ảnh cho product
+    @OneToMany(mappedBy = "productId",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("productId")
+    private List<ProductImage> productImages = new ArrayList<>();
 }

@@ -4,10 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.Ecommerce.DTOs.ProductsDTOs;
 import com.project.Ecommerce.Model.Category;
 import com.project.Ecommerce.Model.Product;
+import com.project.Ecommerce.Model.ProductImage;
 import com.project.Ecommerce.Respones.BaseResponses;
 import jakarta.persistence.MappedSuperclass;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -19,7 +23,7 @@ import lombok.experimental.SuperBuilder;
 
 
 public class ProductResponses extends BaseResponses {
-
+    private Long productId;
     private String name;
     private Double price;
     private String thumbnail;
@@ -28,18 +32,24 @@ public class ProductResponses extends BaseResponses {
     @JsonProperty("category_id")
     private Long categoryID;
 
+    @JsonProperty("product_images")
+    private List<ProductImage> productImages = new ArrayList<>();
+
    // Entity -> Response DTO
-    public static ProductResponses toProductResponse(Product product) {
-        return ProductResponses.builder()
-                .name(product.getName())
-                .price(product.getPrice())
-                .thumbnail(product.getThumbnail())
-                .description(product.getDescription())
-                .categoryID(product.getCategoryId().getId())
-                .createdAt(product.getCreatedAt())
-                .updatedAt(product.getUpdatedAt())
-                .build();
-    }
+   public static ProductResponses toProductResponse(Product product) {
+       return ProductResponses.builder()
+               .productId(product.getId())
+               .name(product.getName())
+               .price(product.getPrice())
+               .thumbnail(product.getThumbnail())
+               .description(product.getDescription())
+               .categoryID(product.getCategoryId().getId())
+               .productImages(product.getProductImages() != null ? product.getProductImages() : new ArrayList<>())
+               .createdAt(product.getCreatedAt())
+               .updatedAt(product.getUpdatedAt())
+               .build();
+   }
+
 
     // DTO -> Entity
     public static Product toProductEntity( Category category,ProductsDTOs dto) {

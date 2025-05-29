@@ -104,6 +104,7 @@ public class ProductService implements ProductServiceIml {
     }
 
 
+
     @Override
     @Transactional
     public ProductImage createProductImage(Long productId, ProductImageDTOs productImageDTO) throws Exception {
@@ -126,6 +127,10 @@ public class ProductService implements ProductServiceIml {
         return productImageRepository.save(productImage);
     }
 
+    @Override
+    public List<Product> findProductsByIds(List<Long> productIds) {
+        return productRepository.findProductsByIds(productIds);
+    }
 
 
 

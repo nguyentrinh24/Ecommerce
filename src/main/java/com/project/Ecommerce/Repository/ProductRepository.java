@@ -1,13 +1,14 @@
 package com.project.Ecommerce.Repository;
 
 import com.project.Ecommerce.Model.Product;
-import com.project.Ecommerce.Model.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 @Repository
@@ -22,5 +23,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     Page<Product> searchProducts
             (@Param("categoryId") Long categoryId,
              @Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.productImages WHERE p.id IN :productIds")
+    List<Product> findProductsByIds(@Param("productIds") List<Long> productIds);
 
 }
