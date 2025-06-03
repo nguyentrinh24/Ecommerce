@@ -2,6 +2,7 @@ package com.project.Ecommerce.Service.Iml;
 
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
+import com.project.Ecommerce.Exceptions.ExpiredTokenException;
 import com.project.Ecommerce.Model.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,4 +23,5 @@ public interface UserServiceIml {
     boolean existsByEmail(String email);
     Optional<User> findByPhoneNumber(String phoneNumber);
 
+    User getUserDetailsFromToken(String token) throws ExpiredTokenException;
 }

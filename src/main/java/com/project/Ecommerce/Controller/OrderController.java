@@ -4,10 +4,14 @@ import com.project.Ecommerce.Component.LocalizationUtil;
 import com.project.Ecommerce.DTOs.OrderDTOs;
 import com.project.Ecommerce.Model.Order;
 import com.project.Ecommerce.Repository.OrderRepository;
+import com.project.Ecommerce.Respones.Order.OrderListResponses;
 import com.project.Ecommerce.Respones.Order.OrderResponse;
 import com.project.Ecommerce.Service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -94,5 +98,29 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi xóa đơn hàng: " + e.getMessage());
         }
+    }
+    @GetMapping("/get-orders-by-keyword")
+    public ResponseEntity<OrderListResponses> getOrdersByKeyword(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        // Tạo Pageable từ thông tin trang và giới hạn
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                //Sort.by("createdAt").descending()
+                Sort.by("id").ascending()
+        );
+        Page<OrderResponse> orderPage = orderService
+                .getOrdersByKeyword(keyword, pageRequest)
+                .map(OrderResponse::fromOrderRespone);
+        // Lấy tổng số trang
+        int totalPages = orderPage.getTotalPages();
+        List<OrderResponse> orderResponses = orderPage.getContent();
+        return ResponseEntity.ok(OrderListResponses
+                .builder()
+                .orders(orderResponses)
+                .totalPages(totalPages)
+                .build());
     }
 }

@@ -5,8 +5,10 @@ import com.project.Ecommerce.DTOs.UserLoginDTOs;
 import com.project.Ecommerce.Model.Token;
 import com.project.Ecommerce.Model.User;
 import com.project.Ecommerce.Repository.TokenRepository;
+import com.project.Ecommerce.Respones.Product.ProductListResponses;
 import com.project.Ecommerce.Respones.User.LoginResponse;
 import com.project.Ecommerce.Respones.User.RegisterResponses;
+import com.project.Ecommerce.Respones.User.UserResponses;
 import com.project.Ecommerce.Service.UserService;
 import com.project.Ecommerce.Component.LocalizationUtil;
 import jakarta.validation.Valid;
@@ -15,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import  com.project.Ecommerce.Service.TokenService;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -100,7 +99,7 @@ public class UserController {
         }
 
         try {
-            // Thay đổi hàm login để trả về user
+
             User user = userService.validateUser(userLoginDTOs.getPhoneNumber(), userLoginDTOs.getPassword());
 
             if (user == null) {
@@ -151,4 +150,21 @@ public class UserController {
             );
         }
     }
+
+    @PostMapping("/detail")
+    public ResponseEntity<UserResponses> getUserDetail(
+            @RequestHeader("Authorization") String authorization
+    )
+    {
+        try {
+            String extractToken = authorization.substring(7); //loại bỏ bear
+            User user = userService.getUserDetailsFromToken(extractToken);
+            return ResponseEntity.ok(UserResponses.fromUser(user));
+        }
+        catch (Exception e) {
+            return
+                    ResponseEntity.badRequest().build();
+        }
+    }
+
 }

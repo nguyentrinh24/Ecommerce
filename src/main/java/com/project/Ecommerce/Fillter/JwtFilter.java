@@ -71,7 +71,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
         }catch (Exception ex){
-            System.out.println(ex.getMessage());
+            ex.printStackTrace();
         }
 
 
@@ -86,7 +86,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // Danh sách API bỏ qua xác thực
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
 
-                Pair.of("/api/v1/order", "GET"),
+                Pair.of("/api/v1/order/**", "GET"),
                 Pair.of("api/v1/order_details/order/**", "GET"),
                 Pair.of("api/v1/order_details/**", "GET"),
                 Pair.of("/api/v1/products", "GET"),
@@ -94,6 +94,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/categories", "GET"),
                 Pair.of("/api/v1/user/register", "POST"),
                 Pair.of("/api/v1/user/login", "POST"),
+                Pair.of("/api/v1/user/detail", "POST"), //
                 Pair.of("/api/v1/role", "GET"),
                 Pair.of("/api/v1/products/images/**", "GET"),
                 Pair.of("/api/v1/products/generateProductFake", "POST")

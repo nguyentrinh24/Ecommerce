@@ -11,6 +11,8 @@ import com.project.Ecommerce.Model.Order;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
@@ -97,7 +99,6 @@ public class OrderService implements OrderIml {
         } catch (DataNotFoundException e) {
             return "Lỗi: " + e.getMessage();
         } catch (Exception e) {
-            // Thường sẽ bắt lỗi ràng buộc FK ở đây
             return "Xóa thất bại: Đơn hàng đang được tham chiếu bởi dữ liệu khác.";
         }
     }
@@ -108,8 +109,10 @@ public class OrderService implements OrderIml {
         return orderRepository.findById(id);
     }
 
-
-
+    @Override
+    public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable) {
+        return orderRepository.getOrderByKeyword(keyword,pageable);
+    }
 
 
 }

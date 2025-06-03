@@ -3,6 +3,7 @@ package com.project.Ecommerce.Service;
 import com.project.Ecommerce.Component.JwtUtil;
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.Exceptions.DataNotFoundException;
+import com.project.Ecommerce.Exceptions.ExpiredTokenException;
 import com.project.Ecommerce.Exceptions.PermissionDenyException;
 import com.project.Ecommerce.Model.Role;
 import com.project.Ecommerce.Model.User;
@@ -149,6 +150,28 @@ public class UserService implements UserServiceIml {
     @Transactional
     public Optional<User> findByPhoneNumber(String phoneNumber) {
         return Optional.empty();
+    }
+
+    // lấy ra user_detail
+    @Override
+    public User getUserDetailsFromToken(String token) throws ExpiredTokenException {
+        if(jwtUtil.checkExpiration(token))
+        {
+            throw new ExpiredTokenException("Token is expired");
+        }
+        String phoneNumber = jwtUtil.extractPhoneNumber(token);
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+        if(user.isPresent())
+        {
+            return user.get();
+        }
+        else {
+            try {
+                throw new Exception("User not found");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
 

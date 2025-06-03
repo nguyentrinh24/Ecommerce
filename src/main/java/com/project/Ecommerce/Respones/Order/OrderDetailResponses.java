@@ -2,16 +2,13 @@ package com.project.Ecommerce.Respones.Order;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.Ecommerce.Model.OrderDetail;
-
 import lombok.*;
-
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-
 public class OrderDetailResponses {
     private Long id;
 
@@ -21,7 +18,9 @@ public class OrderDetailResponses {
     @JsonProperty("product_id")
     private Long productId;
 
-    @JsonProperty("price")
+    @JsonProperty("product_name")
+    private String productName;
+
     private Double price;
 
     @JsonProperty("number_of_products")
@@ -32,16 +31,17 @@ public class OrderDetailResponses {
 
     private String color;
 
-    public static OrderDetailResponses fromOrderDetail(OrderDetail orderDetail) {
-        return OrderDetailResponses
-                .builder()
-                .id(orderDetail.getId())
-                .orderId(orderDetail.getOrder().getId())
-                .productId(orderDetail.getProduct().getId())
-                .price(orderDetail.getPrice())
-                .numberOfProducts(orderDetail.getNumberOfProduct())
-                .totalMoney(orderDetail.getTotalMoney())
-                .color(orderDetail.getColor())
+    public static OrderDetailResponses fromOrderDetail(OrderDetail detail) {
+        return OrderDetailResponses.builder()
+                .id(detail.getId())
+                .orderId(detail.getOrder().getId())
+                .productId(detail.getProduct().getId())
+                .productName(detail.getProduct().getName())
+                .price(detail.getPrice())
+                .numberOfProducts(detail.getNumberOfProduct())
+                .totalMoney(detail.getTotalMoney())
+                .color(detail.getColor())
                 .build();
     }
+
 }

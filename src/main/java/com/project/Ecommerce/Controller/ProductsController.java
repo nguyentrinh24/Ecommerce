@@ -61,7 +61,8 @@ public class ProductsController {
     }
 
     @PostMapping(value = "/upload/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImages(@PathVariable("id") long productId, @RequestParam("files") List<MultipartFile> files) throws IOException {
+    public ResponseEntity<?> uploadImages(@PathVariable("id") long productId,
+                                          @RequestParam("files") List<MultipartFile> files) throws IOException {
         Product existingProduct = productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, localizationUtil.getMessage(PRODUCT_NOT_FOUND)));
 

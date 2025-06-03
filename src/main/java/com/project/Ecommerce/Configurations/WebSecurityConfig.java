@@ -35,7 +35,7 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/order/**").permitAll()
                         .requestMatchers("/api/v1/products/images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST, "/api/v1/products/generateProductFake").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/categories/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/register").permitAll()
@@ -60,6 +60,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/v1/order_details/**").hasRole(Role.ADMIN)
                         .requestMatchers(HttpMethod.PUT, "/api/v1/order_details/**").hasRole(Role.ADMIN)
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/order_details/**").hasRole(Role.ADMIN)
+                        // login
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user/detail").permitAll()
 
                         .anyRequest().authenticated()
                 );

@@ -2,6 +2,8 @@ package com.project.Ecommerce.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.project.Ecommerce.Model.Order;
+import com.project.Ecommerce.Respones.Order.OrderResponse;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -21,7 +23,6 @@ import java.util.Date;
 public class OrderDTOs {
 
     @JsonProperty("user_id")
-
     private long user_id;
 
     @JsonProperty("full_name")
@@ -32,7 +33,6 @@ public class OrderDTOs {
 
     @JsonProperty("address")
     private String address;
-
 
     @Size(min=5,message = "phone")
     @JsonProperty("phone number must at be later 5 characters")
@@ -63,5 +63,7 @@ public class OrderDTOs {
 
     @JsonProperty("cart_item")
     private CartItemDTOS cartItem;
+
+
 
 }
