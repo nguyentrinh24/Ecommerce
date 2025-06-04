@@ -23,7 +23,7 @@ import java.util.List;
 
 
 public class ProductResponses extends BaseResponses {
-    private Long productId;
+    private Long id;
     private String name;
     private Double price;
     private String thumbnail;
@@ -38,7 +38,7 @@ public class ProductResponses extends BaseResponses {
    // Entity -> Response DTO
    public static ProductResponses toProductResponse(Product product) {
        return ProductResponses.builder()
-               .productId(product.getId())
+               .id(product.getId())
                .name(product.getName())
                .price(product.getPrice())
                .thumbnail(product.getThumbnail())
