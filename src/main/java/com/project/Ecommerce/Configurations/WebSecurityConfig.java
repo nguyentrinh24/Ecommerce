@@ -57,13 +57,11 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/v1/categories/**").hasRole(Role.ADMIN)
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/categories/**").hasRole(Role.ADMIN)
                         // order_detail-specific endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/v1/order_details/**").hasRole(Role.ADMIN)
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/order_details/**").hasRole(Role.ADMIN)
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/order_details/**").hasRole(Role.ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/order_details/**").hasAnyRole(Role.ADMIN,Role.USER)
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/order_details/**").hasAnyRole(Role.ADMIN,Role.USER)
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/order_details/**").hasAnyRole(Role.ADMIN,Role.USER)
                         // login
-                        .requestMatchers(HttpMethod.POST, "/api/v1/user/detail").permitAll()
-
-
+                        .requestMatchers(HttpMethod.POST, "/api/v1/user/detail").hasAnyRole(Role.ADMIN,Role.USER)
                         .anyRequest().authenticated()
                 );
 

@@ -43,7 +43,7 @@ public class UserResponses {
     @JsonProperty("gg_account_id")
     private  int gg_account_id;
 
-    @JsonProperty("role_id")
+    @JsonProperty("roleId")
     private Role roleId;
     public static UserResponses fromUser(User user) {
         return UserResponses.builder()
