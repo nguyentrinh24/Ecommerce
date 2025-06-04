@@ -55,6 +55,7 @@ public class Order {
 
     @Column(name = "shipping_date")
     private LocalDateTime  shippingDate;
+    
 
     @Column(name = "tracking_number")
     private String trackingNumber;

@@ -59,11 +59,14 @@ public class OrderController {
             BindingResult result
     ) {
         if (result.hasErrors()) {
-            String message = result.getFieldErrors().stream()
-                    .map(err -> err.getDefaultMessage())
-                    .collect(Collectors.joining("; "));
-            return ResponseEntity.badRequest().body(message);
+            result.getFieldErrors().forEach(err -> {
+                System.out.println(" Field: " + err.getField() + ", Message: " + err.getDefaultMessage());
+            });
+            return ResponseEntity.badRequest().body("Dữ liệu không hợp lệ: " +
+                    result.getFieldErrors().stream().map(err -> err.getDefaultMessage()).collect(Collectors.joining("; "))
+            );
         }
+
 
         try {
             OrderResponse orderResponse = orderService.createOrder(order);

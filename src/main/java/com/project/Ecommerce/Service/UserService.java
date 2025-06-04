@@ -89,8 +89,83 @@ public class UserService implements UserServiceIml {
 
     @Override
     @Transactional
-    public User updateUser(Long id, UserDTOs user) {
-        return null;
+    public User updateUser(Long id, UserDTOs userDTO) {
+        User existingUser = null;
+        try {
+            existingUser = userRepository.findById(id)
+                    .orElseThrow(() -> new DataNotFoundException("User not found with ID: " + id));
+        } catch (DataNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Lấy role mới nếu có truyền
+        if (userDTO.getRoleId() != null) {
+            Role role = null;
+            try {
+                role = roleRepository.findById(userDTO.getRoleId())
+                        .orElseThrow(() -> new DataNotFoundException("Role Not Found"));
+            } catch (DataNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (role.getName().equals("ADMIN")) {
+                try {
+                    throw new PermissionDenyException("Không được cập nhật role lên ADMIN");
+                } catch (PermissionDenyException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            existingUser.setRoleId(role);
+        }
+
+        // Cập nhật số điện thoại nếu thay đổi
+        if (userDTO.getPhoneNumber() != null &&
+                !userDTO.getPhoneNumber().isBlank() &&
+                !userDTO.getPhoneNumber().equals(existingUser.getPhoneNumber())) {
+
+            if (userRepository.findByPhoneNumber(userDTO.getPhoneNumber()).isPresent()) {
+                try {
+                    throw new DataNotFoundException("Phone number already in use");
+                } catch (DataNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            existingUser.setPhoneNumber(userDTO.getPhoneNumber());
+        }
+
+        // Cập nhật các field còn lại nếu có giá trị mới
+        if (userDTO.getFullName() != null && !userDTO.getFullName().isBlank()) {
+            existingUser.setFullName(userDTO.getFullName());
+        }
+
+        if (userDTO.getAddress() != null && !userDTO.getAddress().isBlank()) {
+            existingUser.setAddress(userDTO.getAddress());
+        }
+
+        if (userDTO.getDateOfBirth() != null) {
+            existingUser.setDate_brith(userDTO.getDateOfBirth());
+        }
+
+        // Với int cần đổi sang Integer trong DTO để tránh lỗi null check
+        if (userDTO.getFacebookAccountId() != null && userDTO.getFacebookAccountId() != 0) {
+            existingUser.setFb_account_id(userDTO.getFacebookAccountId());
+        }
+
+        if (userDTO.getGoogleAccountId() != null && userDTO.getGoogleAccountId() != 0) {
+            existingUser.setGg_account_id(userDTO.getGoogleAccountId());
+        }
+
+        // Kiểm tra nếu password khác thì mã hoá lại
+        if (userDTO.getPassword() != null &&
+                !userDTO.getPassword().isBlank() &&
+                !passwordEncoder.matches(userDTO.getPassword(), existingUser.getPassword())) {
+
+            String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+            existingUser.setPassword(encodedPassword);
+        }
+
+        return userRepository.save(existingUser);
     }
 
     @Override
@@ -189,5 +264,8 @@ public class UserService implements UserServiceIml {
     public String generateToken(User user) {
         return jwtUtil.generateToken(user);
     }
+
+
+
 
 }

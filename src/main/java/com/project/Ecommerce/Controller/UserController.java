@@ -2,6 +2,8 @@ package com.project.Ecommerce.Controller;
 
 import com.project.Ecommerce.DTOs.UserDTOs;
 import com.project.Ecommerce.DTOs.UserLoginDTOs;
+import com.project.Ecommerce.Exceptions.DataNotFoundException;
+import com.project.Ecommerce.Exceptions.PermissionDenyException;
 import com.project.Ecommerce.Model.Token;
 import com.project.Ecommerce.Model.User;
 import com.project.Ecommerce.Repository.TokenRepository;
@@ -166,5 +168,31 @@ public class UserController {
                     ResponseEntity.badRequest().build();
         }
     }
+    @PutMapping("/detail/{userID}")
+    public ResponseEntity<?> updateUserDetail(
+            @RequestBody UserDTOs userDTOs,
+            @PathVariable Long userID,
+            @RequestHeader("Authorization") String authorization
+    ) {
+        try {
+            String token = authorization.startsWith("Bearer ") ? authorization.substring(7) : authorization;
+            User userFromToken = userService.getUserDetailsFromToken(token);
+
+            if (!userFromToken.getId().equals(userID)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("Bạn không có quyền cập nhật thông tin người dùng khác.");
+            }
+            userDTOs.setId(userID);
+            User updatedUser = userService.updateUser(userID, userDTOs);
+            UserResponses userResponse = UserResponses.fromUser(updatedUser);
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Lỗi hệ thống: " + e.getMessage());
+        }
+    }
+
+
+
 
 }

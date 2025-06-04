@@ -32,36 +32,38 @@ public class OrderService implements OrderIml {
     @Override
     @Transactional
     public OrderResponse createOrder(OrderDTOs orderDTOs) {
-        //check user_id
         try {
-            User exits_user = userRepository.findById(orderDTOs.getUser_id())
-                                .orElseThrow(()->new DataNotFoundException("User not found"));
+            // 1. Lấy user từ user_id
+            User user = userRepository.findById(orderDTOs.getUser_id())
+                    .orElseThrow(() -> new DataNotFoundException("User not found"));
 
-            // convert -> dùng modelmapper
-           modelmapper.typeMap(OrderDTOs.class,Order.class)
-                   .addMappings(mapper -> {mapper.skip(Order ::setId);});
-
+            // 2. Mapping OrderDTOs → Order (trừ id)
+            modelmapper.typeMap(OrderDTOs.class, Order.class)
+                    .addMappings(mapper -> mapper.skip(Order::setId));
             Order order = new Order();
             modelmapper.map(orderDTOs, order);
-            order.setUser(exits_user);
-            order.setOrderDate(LocalDateTime.now());// lay thoi gian cu the
-            order.setStatus(OrderStatus.PENDING);
-            // check shipping date == date now
-            LocalDateTime shippingDate = order.getShippingDate(); // từ DTO map sang
-            if (shippingDate != null && !shippingDate.toLocalDate().isEqual(LocalDateTime.now().toLocalDate())) {
+            // 3. Gán user
+            order.setUser(user);
+            // 4. Gán ngày đặt hàng và shipping_date
+            order.setOrderDate(LocalDateTime.now());
+            LocalDateTime shippingDate = orderDTOs.getShippingDate();
+            if (shippingDate == null) {
+                shippingDate = LocalDateTime.now();
+            } else if (!shippingDate.toLocalDate().isEqual(LocalDate.now())) {
                 throw new DataNotFoundException("Shipping date must be today");
             }
             order.setShippingDate(shippingDate);
+            // 5. Gán thêm các trường hệ thống
+            order.setStatus(OrderStatus.PENDING);
             order.setActive(true);
+            // 6. Lưu vào DB và trả về response
             orderRepository.save(order);
-            return modelmapper.map(order, (Type) OrderResponse.class);
-        }
-        catch (DataNotFoundException e) {
+            return modelmapper.map(order, OrderResponse.class);
+        } catch (DataNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-
     }
+
 
     @Override
     @Transactional

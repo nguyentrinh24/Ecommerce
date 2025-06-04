@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -35,7 +36,7 @@ public class OrderDTOs {
     private String address;
 
     @Size(min=5,message = "phone")
-    @JsonProperty("phone number must at be later 5 characters")
+    @JsonProperty("phone_number")
     private String phoneNumber;
 
     @JsonProperty("order_date")
@@ -61,8 +62,8 @@ public class OrderDTOs {
     @JsonProperty("payment_method")
     private String paymentMethod;
 
-    @JsonProperty("cart_item")
-    private CartItemDTOS cartItem;
+    @JsonProperty("cart_items")
+    private List<CartItemDTOS> cartItems;
 
 
 

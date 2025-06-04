@@ -2,6 +2,10 @@ package com.project.Ecommerce.DTOs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +20,13 @@ import java.util.Date;
 @Setter
 public class UserDTOs
 {
+
+    @JsonProperty( "id")
+    private  Long id;
+
+    @JsonProperty( "email")
+    private String email;
+
     @JsonProperty("fullname")
     @NotEmpty(message = "Full name not empty ")
     private String fullName;
@@ -36,10 +47,10 @@ public class UserDTOs
     private Date dateOfBirth;
 
     @JsonProperty("fb_account_id")
-    private int facebookAccountId;
+    private Integer  facebookAccountId;
 
     @JsonProperty("gg_account_id")
-    private int googleAccountId;
+    private Integer  googleAccountId;
 
 
     @JsonProperty("role_id")
