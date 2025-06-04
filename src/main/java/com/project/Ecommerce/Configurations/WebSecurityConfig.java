@@ -63,6 +63,7 @@ public class WebSecurityConfig {
                         // login
                         .requestMatchers(HttpMethod.POST, "/api/v1/user/detail").permitAll()
 
+
                         .anyRequest().authenticated()
                 );
 

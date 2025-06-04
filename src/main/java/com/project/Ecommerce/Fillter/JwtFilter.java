@@ -71,7 +71,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
         }catch (Exception ex){
-            ex.printStackTrace();
+            System.out.println("JWT ERROR: " + ex.getMessage());
+            throw new RuntimeException("Token không hợp lệ hoặc đã hết hạn");
         }
 
 
@@ -83,31 +84,25 @@ public class JwtFilter extends OncePerRequestFilter {
         final String path = request.getServletPath();
         final String method = request.getMethod(); // GET, POST, etc.
 
-        // Danh sách API bỏ qua xác thực
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
-
                 Pair.of("/api/v1/order/**", "GET"),
-                Pair.of("api/v1/order_details/order/**", "GET"),
-                Pair.of("api/v1/order_details/**", "GET"),
+                Pair.of("/api/v1/order_details/order/**", "GET"),
+                Pair.of("/api/v1/order_details/**", "GET"),
                 Pair.of("/api/v1/products", "GET"),
                 Pair.of("/api/v1/products/**", "GET"),
                 Pair.of("/api/v1/categories", "GET"),
                 Pair.of("/api/v1/user/register", "POST"),
                 Pair.of("/api/v1/user/login", "POST"),
-                Pair.of("/api/v1/user/detail", "POST"), //
                 Pair.of("/api/v1/role", "GET"),
                 Pair.of("/api/v1/products/images/**", "GET"),
                 Pair.of("/api/v1/products/generateProductFake", "POST")
         );
 
-
-
-        for (Pair<String, String> byPassToken : byPassTokens) {
-            if (pathMatcher.match(byPassToken.getLeft(), path) && method.equalsIgnoreCase(byPassToken.getRight())) {
+        for (Pair<String, String> entry : byPassTokens) {
+            if (pathMatcher.match(entry.getLeft(), path) && method.equalsIgnoreCase(entry.getRight())) {
                 return true;
             }
         }
-
 
         return false;
     }
