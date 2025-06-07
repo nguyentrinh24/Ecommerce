@@ -41,7 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-
             //check api = token
             final String authorizationHeader = request.getHeader("Authorization"); //HTTP header
 
@@ -65,19 +64,14 @@ public class JwtFilter extends OncePerRequestFilter {
                     }
                 }
             }
-
             // luôn gọi tiếp filter chain
             filterChain.doFilter(request, response);
-
 
         }catch (Exception ex){
             System.out.println("JWT ERROR: " + ex.getMessage());
             throw new RuntimeException("Token không hợp lệ hoặc đã hết hạn");
         }
-
-
     }
-
 
 
     private boolean isByPassToken(@NotNull HttpServletRequest request) {

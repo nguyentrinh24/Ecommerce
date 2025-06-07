@@ -23,7 +23,6 @@ public class Token {
     @JoinColumn(name = "user_id")
     private User user;
 
-
     @Column(name = "token")
     private String token;
 
@@ -36,8 +35,11 @@ public class Token {
     @Column(name = "ex_pritation_date")
     private LocalDateTime expirationDate;
 
-
+    @Column(columnDefinition = "BIT(1)", nullable = false) // false (0): chưa bị thu hồi, true (1): đã bị thu hồi
     private boolean revoked;
+
+    @Column(columnDefinition = "BIT(1)", nullable = false) // false (0): còn hạn, true (1): đã hết hạn
     private boolean expired;
+
 
 }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,6 +54,7 @@ public class OrderController {
     }
 
     //  Tạo đơn hàng
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("")
     public ResponseEntity<?> createOrder(
             @Valid @RequestBody OrderDTOs order,
@@ -77,6 +79,7 @@ public class OrderController {
     }
 
     //  Cập nhật đơn hàng
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrder(
             @Valid @RequestBody OrderDTOs orderDTO,
@@ -91,6 +94,7 @@ public class OrderController {
     }
 
     // Xóa đơn hàng (mềm)
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrder(@PathVariable("id") long id) {
         try {

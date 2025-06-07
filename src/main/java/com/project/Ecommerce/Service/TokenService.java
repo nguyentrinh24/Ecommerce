@@ -18,7 +18,22 @@ public class TokenService implements TokenServiceIml {
     public Token addToken(User user, String token, Role role) {
         return tokenRepository.save(Token.builder()
                 .user(user)
-                .token(role.getName())
-                .token(token).build());
+                .token(token)              // token JWT
+                .tokenType(role.getName()) // role làm tokenType
+                .revoked(false)
+                .expired(false)
+                .build());
+    }
+
+    @Override
+    public void revokeAllUserTokens(User user) {
+        var tokens = tokenRepository.findAllByUser(user);
+        for (Token token : tokens) {
+            if (!token.isExpired() && !token.isRevoked()) {
+                token.setExpired(true);
+                token.setRevoked(true);
+            }
+        }
+        tokenRepository.saveAll(tokens);
     }
 }

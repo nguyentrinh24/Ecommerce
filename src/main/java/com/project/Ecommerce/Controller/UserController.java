@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import  com.project.Ecommerce.Service.TokenService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,12 +87,10 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(
             @Valid @RequestBody UserLoginDTOs userLoginDTOs,
             BindingResult bindingResult) {
-
         if (bindingResult.hasErrors()) {
             String errorMessages = bindingResult.getFieldErrors().stream()
                     .map(err -> err.getDefaultMessage())
                     .collect(Collectors.joining("; "));
-
             return ResponseEntity.badRequest().body(
                     LoginResponse.builder()
                             .message(errorMessages)
@@ -99,11 +98,8 @@ public class UserController {
                             .build()
             );
         }
-
         try {
-
             User user = userService.validateUser(userLoginDTOs.getPhoneNumber(), userLoginDTOs.getPassword());
-
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                         LoginResponse.builder()
@@ -112,10 +108,8 @@ public class UserController {
                                 .build()
                 );
             }
-
             // Sinh token (accessToken) cho user
              String token = userService.generateToken(user);
-
             // Lưu vào bảng tokens, phải set user
             tokenRepository.save(
                     Token.builder()
@@ -127,15 +121,16 @@ public class UserController {
                             .expired(false)
                             .build()
             );
-
             return ResponseEntity.ok(
                     LoginResponse.builder()
                             .message(localizationUtil.getMessage(LOGIN_SUCCESSFULLY))
+                            .id(user.getId())
+                            .phoneNumber(user.getUsername())
+                            .roles(user.getRoleId().getId())
+                            .tokenType("BEARER ")
                             .token(token)
                             .build()
             );
-
-
         } catch (Exception e) {
             String errorMessage;
             try {
@@ -143,7 +138,6 @@ public class UserController {
             } catch (Exception ex) {
                 errorMessage = "Lỗi không xác định: " + e.getMessage();
             }
-
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                     LoginResponse.builder()
                             .message(errorMessage)
@@ -152,7 +146,7 @@ public class UserController {
             );
         }
     }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("/detail")
     public ResponseEntity<UserResponses> getUserDetail(
             @RequestHeader("Authorization") String authorization
@@ -168,6 +162,7 @@ public class UserController {
                     ResponseEntity.badRequest().build();
         }
     }
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/detail/{userID}")
     public ResponseEntity<?> updateUserDetail(
             @RequestBody UserDTOs userDTOs,

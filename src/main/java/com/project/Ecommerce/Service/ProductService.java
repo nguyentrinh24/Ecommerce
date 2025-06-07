@@ -38,13 +38,26 @@ public class ProductService implements ProductServiceIml {
     private final String uploadPath = "uploads";
 
     @Override
-    public Product createProduct(ProductsDTOs productDTO) throws Exception {
-        Category category = categoriRepository.findById(productDTO.getCategoryID())
+    public Product createProduct(ProductsDTOs dto, List<MultipartFile> images) throws Exception {
+        Category category = categoriRepository.findById(dto.getCategoryID())
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
 
-        Product product = ProductResponses.toProductEntity(category, productDTO);
-        return productRepository.save(product);
+        Product product = ProductResponses.toProductEntity(category, dto);
+        product = productRepository.save(product);
+
+        if (images != null && !images.isEmpty()) {
+            for (MultipartFile file : images) {
+                String fileName = storeFile(file); // lưu ảnh thư mục
+                ProductImage productImage = new ProductImage();
+                productImage.setImageUrl(fileName);
+                productImage.setProductId(product);
+                productImageRepository.save(productImage);
+            }
+        }
+
+        return product;
     }
+
 
     @Override
     public Product getProductById(long id) throws Exception {
@@ -62,9 +75,13 @@ public class ProductService implements ProductServiceIml {
 
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
-        product.setThumbnail(productDTO.getThumbnail());
         product.setPrice(productDTO.getPrice());
         product.setCategoryId(category);
+        if (productDTO.getThumbnail() != null && !productDTO.getThumbnail().isBlank()) {
+            product.setThumbnail(productDTO.getThumbnail());
+        }
+
+
 
         return productRepository.save(product);
     }
@@ -164,44 +181,59 @@ public class ProductService implements ProductServiceIml {
         return productRepository.findProductsByIds(parsedIds);
     }
 
-    @Override
-    public String generateFakeProducts() {
-        Faker faker = new Faker();
-        int max = 100;
-        int created = 0;
-
-        for (int i = 0; i < max; i++) {
-            String name = faker.commerce().productName();
-            if (productRepository.existsByName(name)) continue;
-
-            try {
-                Product product = createProduct(ProductsDTOs.builder()
-                        .name(name)
-                        .description(faker.lorem().sentence())
-                        .price((double) faker.number().numberBetween(1000, 100_000_000))
-                        .thumbnail("https://picsum.photos/300/300?random=" + i)
-                        .categoryID((long) faker.number().numberBetween(2, 5))
-                        .build());
-
-                for (int j = 0; j < 5; j++) {
-                    productImageRepository.save(ProductImage.builder()
-                            .productId(product)
-                            .imageUrl("https://picsum.photos/300/300?random=" + faker.random().nextInt(1000))
-                            .build());
-                }
-
-                created++;
-            } catch (Exception ignored) {}
-        }
-
-        return "Generated " + created + " fake products.";
-    }
+//    @Override
+//    public String generateFakeProducts() {
+////        Faker faker = new Faker();
+////        int max = 100;
+////        int created = 0;
+////
+////        for (int i = 0; i < max; i++) {
+////            String name = faker.commerce().productName();
+////            if (productRepository.existsByName(name)) continue;
+////
+////            try {
+////                Product product = createProduct(ProductsDTOs.builder()
+////                        .name(name)
+////                        .description(faker.lorem().sentence())
+////                        .price((double) faker.number().numberBetween(1000, 100_000_000))
+////                        .thumbnail("https://picsum.photos/300/300?random=" + i)
+////                        .categoryID((long) faker.number().numberBetween(2, 5))
+////                        .build());
+////
+////                for (int j = 0; j < 5; j++) {
+////                    productImageRepository.save(ProductImage.builder()
+////                            .productId(product)
+////                            .imageUrl("https://picsum.photos/300/300?random=" + faker.random().nextInt(1000))
+////                            .build());
+////                }
+////
+////                created++;
+////            } catch (Exception ignored) {}
+////        }
+////
+////        return "Generated " + created + " fake products.";
+//    }
 
     @Override
     public ProductResponses getProductDetail(Long id) throws Exception {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new Exception("Product not found"));
         return ProductResponses.toProductResponse(product);
+    }
+
+    @Override
+    public void deleteProductImage(Long id) throws Exception {
+        ProductImage image = productImageRepository.findById(id)
+                .orElseThrow(() -> new Exception("Image not found"));
+
+        productImageRepository.delete(image);
+
+        // nếu ảnh bị xoá là ảnh thumbnail hiện tại reset thumbnail về null hoặc ảnh khác
+        Product product = image.getProductId();
+        if (product.getThumbnail() != null && product.getThumbnail().equals(image.getImageUrl())) {
+            product.setThumbnail(null); // hoặc gán ảnh khác nếu có
+            productRepository.save(product);
+        }
     }
 
 }

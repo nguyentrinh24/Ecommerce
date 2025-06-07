@@ -21,13 +21,9 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 
 public class JwtUtil {
-
     private final TokenRepository tokenRepository;
-
-
     @Value("${jwt.expiration}")
     private Long expiration; // time live-> save local
-
     @Value("${jwt.secretKey}")
     private String secretKey;
 
@@ -38,14 +34,12 @@ public class JwtUtil {
         claims.put("user", user.getId());
         claims.put("authorities", List.of("ROLE_" + user.getRoleId().getName()));
         try{
-
             String token = Jwts.builder()
                     .setClaims(claims) // ? extract claims
                     .setSubject(user.getPhoneNumber())
                     .setExpiration(new Date(System.currentTimeMillis() + expiration *10000))
                     .signWith(getSecretKey(), SignatureAlgorithm.HS256)
                     .compact();
-
             return token;
         }
         catch (Exception e){
@@ -54,14 +48,11 @@ public class JwtUtil {
         }
         return null;
     }
-
     // tao secretkey dung jjwt
     private Key getSecretKey(){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
-
     }
-
     // extract claims
     public Claims exctractClaims (String token)
     {

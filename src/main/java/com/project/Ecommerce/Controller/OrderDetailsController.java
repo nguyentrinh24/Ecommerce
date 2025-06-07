@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -49,6 +50,7 @@ public class OrderDetailsController {
     }
 
     //  Tạo order detail
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("")
     public ResponseEntity<?> createOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO) {
         try {
@@ -61,6 +63,7 @@ public class OrderDetailsController {
     }
 
     //  Cập nhật order detail
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrderDetail(@Valid @RequestBody OrderDetailDTOs orderDetailDTO,
                                                @PathVariable("id") long id) {
@@ -74,6 +77,7 @@ public class OrderDetailsController {
     }
 
     //  Xóa order detail
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrderDetail(@PathVariable("id") long id) {
         try {

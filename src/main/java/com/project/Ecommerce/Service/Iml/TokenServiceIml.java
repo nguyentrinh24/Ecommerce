@@ -6,5 +6,5 @@ import com.project.Ecommerce.Model.User;
 
 public interface TokenServiceIml {
     Token addToken(User user, String token, Role role);
-
+    void revokeAllUserTokens(User user);
 }

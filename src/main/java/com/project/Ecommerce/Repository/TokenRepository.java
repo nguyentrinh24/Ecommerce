@@ -1,8 +1,8 @@
 package com.project.Ecommerce.Repository;
 
 import com.project.Ecommerce.Model.Token;
+import com.project.Ecommerce.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.core.userdetails.User;
 
 import java.util.List;
 import org.springframework.stereotype.Repository;
@@ -16,5 +16,6 @@ public interface TokenRepository extends JpaRepository<Token,Long> {
 
     Token findByRefreshToken(String token);
 
-    List<Token> token(String token);
+
+
 }

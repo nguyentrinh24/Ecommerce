@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.project.Ecommerce.Util.MessagesKey.*;
@@ -32,21 +34,28 @@ public class ProductsController {
     private final ProductService productService;
     private final LocalizationUtil localizationUtil;
 
-    @PostMapping
-    public ResponseEntity<?> addProduct(@Valid @RequestBody ProductsDTOs productsDTOs, BindingResult bindingResult) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProductWithImages(
+            @RequestPart("product") @Valid ProductsDTOs productDTO,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images,
+            BindingResult bindingResult
+    ) {
         if (bindingResult.hasErrors()) {
             List<String> errors = bindingResult.getFieldErrors()
                     .stream().map(e -> e.getDefaultMessage()).collect(Collectors.toList());
             return ResponseEntity.badRequest().body(errors);
         }
         try {
-            productService.createProduct(productsDTOs);
+            productService.createProduct(productDTO, images);
             return ResponseEntity.ok(localizationUtil.getMessage(PRODUCT_CREATED_SUCCESS));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(localizationUtil.getMessage(PRODUCT_OPERATION_FAILED, e.getMessage()));
         }
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductsDTOs dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -62,6 +71,7 @@ public class ProductsController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         try {
@@ -73,14 +83,26 @@ public class ProductsController {
         }
     }
 
-    @GetMapping("")
-    public ResponseEntity<ProductListResponses> getAllProducts(@RequestParam(defaultValue = "") String keyword,
-                                                               @RequestParam(defaultValue = "0") Long categoryId,
-                                                               @RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "10") int limit) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @DeleteMapping("/product_images/{id}")
+    public ResponseEntity<?> deleteProductImage(@PathVariable Long id) {
         try {
-            int actualPage = Math.max(0, page - 1);
-            PageRequest pageRequest = PageRequest.of(actualPage, limit, Sort.by("id"));
+            productService.deleteProductImage(id); // gọi vào service để xóa ảnh
+            return ResponseEntity.ok(Map.of("message", "Image deleted successfully"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to delete image: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ProductListResponses> getAllProducts(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") Long categoryId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id")); //bỏ Math.max(0, page - 1)
             Page<ProductResponses> products = productService.getAllProducts(keyword, categoryId, pageRequest);
             return ResponseEntity.ok(ProductListResponses.builder()
                     .productResponses(products.getContent())
@@ -100,6 +122,7 @@ public class ProductsController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("/upload/{id}")
     public ResponseEntity<?> uploadImages(@PathVariable Long id, @RequestParam("files") List<MultipartFile> files) {
         try {
@@ -133,13 +156,14 @@ public class ProductsController {
         }
     }
 
-    @PostMapping("/generateProductFake")
-    public ResponseEntity<?> generateProductFake() {
-        try {
-            productService.generateFakeProducts();
-            return ResponseEntity.ok(localizationUtil.getMessage(PRODUCT_FAKE_GENERATE_SUCCESS));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating fake product: " + e.getMessage());
-        }
-    }
+//    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+//    @PostMapping("/generateProductFake")
+//    public ResponseEntity<?> generateProductFake() {
+//        try {
+//            productService.generateFakeProducts();
+//            return ResponseEntity.ok(localizationUtil.getMessage(PRODUCT_FAKE_GENERATE_SUCCESS));
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body("Error creating fake product: " + e.getMessage());
+//        }
+//    }
 }

@@ -8,6 +8,7 @@ import com.project.Ecommerce.Component.LocalizationUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class CategoriesController {
     private final LocalizationUtil localizationUtil;
 
     // CREATE CATEGORY
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("")
     public ResponseEntity<?> createCategory(
             @Valid @RequestBody CategoryDTOs categoryDTO,
@@ -60,6 +62,8 @@ public class CategoriesController {
         return ResponseEntity.ok(categoryList);
     }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
     //  UPDATE CATEGORY
     @PutMapping("/{id}")
     public ResponseEntity<UpdateCategoryResponses> updateCategory(
@@ -83,6 +87,7 @@ public class CategoriesController {
     }
 
     //  DELETE CATEGORY
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         try {

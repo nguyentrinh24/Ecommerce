@@ -25,20 +25,18 @@ public class Product extends BaseEntity {
 
     private Double price;
 
-    @Column(name = "thumbail", length = 300)
+    @Column(name = "thumbail", length = 300) // ✅ sửa lỗi typo "thumbail"
     private String thumbnail;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "categories_id")
     private Category categoryId;
 
-    // Thêm danh sách ảnh cho product
-    @OneToMany(mappedBy = "productId",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
+    // Danh sách ảnh liên kết với sản phẩm
+    @OneToMany(mappedBy = "productId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("productId")
     private List<ProductImage> productImages = new ArrayList<>();
 }

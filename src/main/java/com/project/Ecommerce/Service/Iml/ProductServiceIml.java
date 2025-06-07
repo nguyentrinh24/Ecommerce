@@ -13,7 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductServiceIml {
-    Product createProduct(ProductsDTOs productDTO) throws Exception;
+    Product createProduct(ProductsDTOs dto, List<MultipartFile> images) throws Exception;
+
 
     Product getProductById(long id) throws Exception;
 
@@ -33,7 +34,7 @@ public interface ProductServiceIml {
 
     List<Product> getProductsByIdsString(String ids) throws Exception;
 
-    String generateFakeProducts();
+//    String generateFakeProducts();
     ProductResponses getProductDetail(Long id) throws Exception;
-
+    void deleteProductImage(Long id) throws Exception;
 }
