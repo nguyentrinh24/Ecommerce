@@ -63,7 +63,7 @@ public class CategoriesController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+
     //  UPDATE CATEGORY
     @PutMapping("/{id}")
     public ResponseEntity<UpdateCategoryResponses> updateCategory(

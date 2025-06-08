@@ -1,6 +1,5 @@
 package com.project.Ecommerce.Fillter;
 
-
 import com.project.Ecommerce.Component.JwtUtil;
 import com.project.Ecommerce.Model.User;
 import jakarta.servlet.FilterChain;
@@ -33,24 +32,27 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
                                     @NotNull FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("JWT Filter triggered: " + request.getMethod() + " " + request.getServletPath());
+        final String path = request.getServletPath();
+        final String method = request.getMethod();
 
-        try{
-            // api kh check
+        System.out.println("JWT Filter triggered: " + method + " " + path);
+
+        try {
             if (isByPassToken(request)) {
+                System.out.println(">> Bypass JWT check: " + method + " " + path);
                 filterChain.doFilter(request, response);
                 return;
             }
-            //check api = token
-            final String authorizationHeader = request.getHeader("Authorization"); //HTTP header
+
+            final String authorizationHeader = request.getHeader("Authorization");
+            System.out.println(">> Authorization header: " + authorizationHeader);
 
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 final String token = authorizationHeader.substring(7);
                 final String phoneNumber = jwtUtil.extractPhoneNumber(token);
 
                 if (phoneNumber != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    //ép kiểu để gọi tới ROLE
-                                      User userDetails = (User) userDetailsService.loadUserByUsername(phoneNumber);
+                    User userDetails = (User) userDetailsService.loadUserByUsername(phoneNumber);
 
                     if (jwtUtil.validateToken(token, userDetails)) {
                         UsernamePasswordAuthenticationToken authenticationToken =
@@ -61,25 +63,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
                         authenticationToken.setDetails(new WebAuthenticationDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                        System.out.println(">> JWT authenticated for user: " + phoneNumber);
+
+                        System.out.println(">> SecurityContext authentication: " + SecurityContextHolder.getContext().getAuthentication());
+                    } else {
+                        System.out.println(">> Token invalid for user: " + phoneNumber);
                     }
                 }
             }
-            // luôn gọi tiếp filter chain
+
             filterChain.doFilter(request, response);
 
-        }catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println("JWT ERROR: " + ex.getMessage());
             throw new RuntimeException("Token không hợp lệ hoặc đã hết hạn");
         }
     }
 
-
     private boolean isByPassToken(@NotNull HttpServletRequest request) {
         final String path = request.getServletPath();
-        final String method = request.getMethod(); // GET, POST, etc.
+        final String method = request.getMethod();
 
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
-                Pair.of("/api/v1/order/**", "GET"),
+                Pair.of("/api/v1/categories/get-orders-by-keyword", "GET"),
                 Pair.of("/api/v1/order_details/order/**", "GET"),
                 Pair.of("/api/v1/order_details/**", "GET"),
                 Pair.of("/api/v1/products", "GET"),
@@ -89,7 +96,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 Pair.of("/api/v1/user/login", "POST"),
                 Pair.of("/api/v1/role", "GET"),
                 Pair.of("/api/v1/products/images/**", "GET"),
-                Pair.of("/api/v1/products/generateProductFake", "POST")
+                Pair.of("/api/v1/products/generateProductFake", "POST"),
+                Pair.of("//api/v1/order/**", "POST")
+
         );
 
         for (Pair<String, String> entry : byPassTokens) {
@@ -100,6 +109,4 @@ public class JwtFilter extends OncePerRequestFilter {
 
         return false;
     }
-
-
 }

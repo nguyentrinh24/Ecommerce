@@ -17,10 +17,16 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
     List<Order> findByUserId(Long id);
 
     void deleteById(Long id);
-    @Query("SELECT o FROM Order o WHERE o.active = true AND (:keyword IS NULL OR :keyword = '' OR " +
-            "o.fullName LIKE %:keyword% " +
-            "OR o.address LIKE %:keyword% " +
-            "OR o.note LIKE %:keyword% " +
-            "OR o.email LIKE %:keyword%)")
+
+
+    @Query("""
+    SELECT o FROM Order o
+    WHERE o.active = true AND (
+        :keyword IS NULL OR :keyword = '' OR
+        o.fullName LIKE CONCAT('%', :keyword, '%') OR
+        o.address LIKE CONCAT('%', :keyword, '%') OR
+        o.note LIKE CONCAT('%', :keyword, '%') OR
+        o.email LIKE CONCAT('%', :keyword, '%') )""")
+
     Page<Order> getOrderByKeyword(@Param(("keyword"))String keyword, Pageable pageRequest);
 }

@@ -1,11 +1,11 @@
 package com.project.Ecommerce.Configurations;
 
 import com.project.Ecommerce.Fillter.JwtFilter;
-import com.project.Ecommerce.Model.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,22 +21,10 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     private final JwtFilter jwtFilter;
-
-    private static final String[] PERMIT_ALL_ENDPOINTS = {
-            "/api/v1/role",
-            "/api/v1/products/images/**",
-            "/api/v1/products",
-            "/api/v1/products/**",
-            "/api/v1/categories/**",
-            "/api/v1/user/register",
-            "/api/v1/user/login",
-            "/api/v1/order_details/**",
-            "/api/v1/order_details/order/**",
-            "/api/v1/order/**"
-    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,7 +33,27 @@ public class WebSecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(PERMIT_ALL_ENDPOINTS).permitAll()
+                        // PUBLIC GETs
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/products/**",
+                                "/api/v1/categories/**",
+                                "/api/v1/categories/get-orders-by-keyword",
+                                "/api/v1/order_details/**",
+                                "/api/v1/order_details/order/**",
+                                "/api/v1/role"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/order/**").permitAll()
+
+                        // PUBLIC POSTs
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/v1/user/login",
+                                "/api/v1/user/register"
+                        ).permitAll()
+
+                        // PUBLIC GET ảnh sản phẩm
+                        .requestMatchers(HttpMethod.GET, "/api/v1/products/images/**").permitAll()
+
+                        // Cho tất cả các request còn lại: cần AUTH
                         .anyRequest().authenticated()
                 );
 
@@ -59,9 +67,9 @@ public class WebSecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 }
-

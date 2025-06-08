@@ -25,7 +25,7 @@ public class Product extends BaseEntity {
 
     private Double price;
 
-    @Column(name = "thumbail", length = 300) // ✅ sửa lỗi typo "thumbail"
+    @Column(name = "thumbnail", length = 300) // sửa lỗi typo "thumbail"
     private String thumbnail;
 
     @Column(name = "description", columnDefinition = "LONGTEXT")
